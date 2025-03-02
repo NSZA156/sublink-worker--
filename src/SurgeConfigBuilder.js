@@ -254,7 +254,7 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
 
             if (rule.ip_rules[0] !== '') {
                 rule.ip_rules.forEach(ip => {
-                    finalConfig.push(`GEOIP,${ip},${t('outboundNames.'+ rule.outbound)},no-resolve`);
+                    finalConfig.push(`GEOIP,${ip},${t('outboundNames.'+ rule.outbound)}`);
                 });
             }
 
@@ -272,7 +272,7 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
 
             if (rule.ip_cidr) {
                 rule.ip_cidr.forEach(cidr => {
-                    finalConfig.push(`IP-CIDR,${cidr},${t('outboundNames.'+ rule.outbound)},no-resolve`);
+                    finalConfig.push(`IP-CIDR,${cidr},${t('outboundNames.'+ rule.outbound)}`);
                 });
             }
         });

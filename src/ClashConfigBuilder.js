@@ -201,10 +201,10 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
 
         this.config.rules = rules.flatMap(rule => {
             const siteRules = rule.site_rules[0] !== '' ? rule.site_rules.map(site => `GEOSITE,${site},${t('outboundNames.'+ rule.outbound)}`) : [];
-            const ipRules = rule.ip_rules[0] !== '' ? rule.ip_rules.map(ip => `GEOIP,${ip},${t('outboundNames.'+ rule.outbound)},no-resolve`) : [];
+            const ipRules = rule.ip_rules[0] !== '' ? rule.ip_rules.map(ip => `GEOIP,${ip},${t('outboundNames.'+ rule.outbound)}`) : [];
             const domainSuffixRules = rule.domain_suffix ? rule.domain_suffix.map(suffix => `DOMAIN-SUFFIX,${suffix},${t('outboundNames.'+ rule.outbound)}`) : [];
             const domainKeywordRules = rule.domain_keyword ? rule.domain_keyword.map(keyword => `DOMAIN-KEYWORD,${keyword},${t('outboundNames.'+ rule.outbound)}`) : [];
-            const ipCidrRules = rule.ip_cidr ? rule.ip_cidr.map(cidr => `IP-CIDR,${cidr},${t('outboundNames.'+ rule.outbound)},no-resolve`) : [];
+            const ipCidrRules = rule.ip_cidr ? rule.ip_cidr.map(cidr => `IP-CIDR,${cidr},${t('outboundNames.'+ rule.outbound)}`) : [];
             return [...siteRules, ...ipRules, ...domainSuffixRules, ...domainKeywordRules, ...ipCidrRules];
         });
 
