@@ -42,9 +42,9 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
                     uuid: proxy.uuid,
                     alterId: proxy.alter_id,
                     cipher: proxy.security,
-                    tls: proxy.tls?.enabled || false,
-                    servername: proxy.tls?.server_name || '',
-                    network: proxy.transport?.type || 'tcp',
+                    tls: proxy.tls?.enabled,
+                    servername: proxy.tls?.server_name,
+                    network: proxy.transport?.type,
                     'ws-opts': proxy.transport?.type === 'ws' ? {
                         path: proxy.transport.path,
                         headers: proxy.transport.headers
@@ -58,10 +58,10 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
                     port: proxy.server_port,
                     uuid: proxy.uuid,
                     cipher: proxy.security,
-                    tls: proxy.tls?.enabled || false,
+                    tls: proxy.tls?.enabled,
                     'client-fingerprint': proxy.tls.utls?.fingerprint,
-                    servername: proxy.tls?.server_name || '',
-                    network: proxy.transport?.type || 'tcp',
+                    servername: proxy.tls?.server_name,
+                    network: proxy.transport?.type,
                     'ws-opts': proxy.transport?.type === 'ws' ? {
                         path: proxy.transport.path,
                         headers: proxy.transport.headers
@@ -98,10 +98,10 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
                     port: proxy.server_port,
                     password: proxy.password,
                     cipher: proxy.security,
-                    tls: proxy.tls?.enabled || false,
+                    tls: proxy.tls?.enabled,
                     'client-fingerprint': proxy.tls.utls?.fingerprint,
-                    sni: proxy.tls?.server_name || '',
-                    network: proxy.transport?.type || 'tcp',
+                    sni: proxy.tls?.server_name,
+                    network: proxy.transport?.type,
                     'ws-opts': proxy.transport?.type === 'ws' ? {
                         path: proxy.transport.path,
                         headers: proxy.transport.headers
