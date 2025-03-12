@@ -381,34 +381,22 @@ export function generateClashRuleSets(selectedRules = [], customRules = []) {
 
 // Singbox configuration
 export const SING_BOX_CONFIG = {
+	log: {
+		level: "info"
+	},
+	experimental: {
+		cache_file: {
+			enabled: true,
+			store_fakeip: true
+		}
+	},
 	dns: {
 		servers: [
 			{
-				tag: "dns_proxy",
-				address: "tcp://1.1.1.1",
-				address_resolver: "dns_resolver",
-				strategy: "ipv4_only",
-				detour: "🚀 节点选择"
-			},
-			{
-				tag: "dns_direct", 
-				address: "https://dns.alidns.com/dns-query",
-				address_resolver: "dns_resolver",
+				tag: "dns_default",
+				address: "180.184.1.1",
 				strategy: "ipv4_only",
 				detour: "DIRECT"
-			},
-			{
-				tag: "dns_resolver",
-				address: "223.5.5.5",
-				detour: "DIRECT"
-			},
-			{
-				tag: "dns_success",
-				address: "rcode://success"
-			},
-			{
-				tag: "dns_refused",
-				address: "rcode://refused"
 			},
 			{
 				tag: "dns_fakeip",
@@ -418,125 +406,96 @@ export const SING_BOX_CONFIG = {
 		rules: [
 			{
 				outbound: "any",
-				server: "dns_resolver"
+				server: "dns_default"
 			},
 			{
-				rule_set: "geolocation-!cn",
 				query_type: [
-					"A",
-					"AAAA"
+					"A"
 				],
 				server: "dns_fakeip"
-			},
-			{
-				rule_set: "geolocation-!cn",
-				query_type: [
-					"CNAME"
-				],
-				server: "dns_proxy"
-			},
-			{
-				query_type: [
-					"A",
-					"AAAA",
-					"CNAME"
-				],
-				invert: true,
-				server: "dns_refused",
-				disable_cache: true
 			}
 		],
-		final: "dns_direct",
-		independent_cache: true,
 		fakeip: {
 			enabled: true,
-			inet4_range: "198.18.0.0/15",
-			inet6_range: "fc00::/18"
+			inet4_range: "198.18.0.1/15",
 		}
-	},
-	ntp: {
-		enabled: true,
-		server: 'time.apple.com',
-		server_port: 123,
-		interval: '30m',
-		detour: 'DIRECT'
 	},
 	inbounds: [
 		{ type: 'mixed', tag: 'mixed-in', listen: '0.0.0.0', listen_port: 2080 },
-		{ type: 'tun', tag: 'tun-in', address: '172.19.0.1/30', auto_route: true, strict_route: true, stack: 'mixed', sniff: true }
+		{ type: 'tun', tag: 'tun-in', address: '172.19.0.1/30', auto_route: true, stack: 'mixed' }
 	],
 	outbounds: [
-		{ type: 'direct', tag: 'DIRECT' },
-		{ type: 'block', tag: 'REJECT' },
-		{ type: 'dns', tag: 'dns-out' }
+		{ type: 'direct', tag: 'DIRECT' }
 	],
 	route : {
-		"rule_set": [
-            {
-                "tag": "geosite-geolocation-!cn",
-                "type": "local",
-                "format": "binary",
-                "path": "geosite-geolocation-!cn.srs"
-            }
-		],
+		rule_set: [],
 		rules: [
 			{
-				"outbound": "any",
-				"server": "dns_resolver"
+				inbound: ["mixed-in", "tun-in"],
+				action: "sniff"
+			},
+			{
+				port: 53,
+				action: "hijack-dns"
 			}
 		]
-	},
-	experimental: {
-		cache_file: {
-			enabled: true,
-			store_fakeip: true
-		}
 	}
 };
 
 export const CLASH_CONFIG = {
-    'port': 7890,
-    'socks-port': 7891,
-    'allow-lan': false,
     'mode': 'rule',
     'log-level': 'info',
-    'geodata-mode': true,
-    'geo-auto-update': true,
-    'geodata-loader': 'standard',
-    'geo-update-interval': 24,
-    'geox-url': {
-      'geoip': "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip.dat",
-      'geosite': "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geosite.dat",
-      'mmdb': "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/country.mmdb",
-      'asn': "https://github.com/xishang0128/geoip/releases/download/latest/GeoLite2-ASN.mmdb"
-    },
-    'rule-providers': {
-      // 将由代码自动生成
-    },
+	'profile': {
+		'store-fake-ip': true
+	},
+	'listener': [
+		{
+			'name': 'mixed-in',
+			'type': 'mixed',
+			'port': 7892,
+			'listen': '0.0.0.0'
+		},
+		{
+			'name': 'tun-in',
+			'type': 'tun',
+			'stack': 'mixed',
+			'auto-route': true,
+			'dns-hijack': [
+				'0.0.0.0:53'
+			],
+			'inet4-address':[
+				'198.19.0.1/30'
+			]
+		}
+	],
     'dns': {
         'enable': true,
-        'ipv6': true,
-        'respect-rules': true,
+		'ipv6': false,
         'enhanced-mode': 'fake-ip',
+		'fake-ip-range':  '198.18.0.1/15',
         'nameserver': [
-            'https://120.53.53.53/dns-query',
-            'https://223.5.5.5/dns-query'
-        ],
-        'proxy-server-nameserver': [
-            'https://120.53.53.53/dns-query',
-            'https://223.5.5.5/dns-query'
-        ],
-        'nameserver-policy': {
-            'geosite:cn,private': [
-                'https://120.53.53.53/dns-query',
-                'https://223.5.5.5/dns-query'
-            ],
-            'geosite:geolocation-!cn': [
-                'https://dns.cloudflare.com/dns-query',
-                'https://dns.google/dns-query'
-            ]
-        }
+            '180.184.1.1'
+        ]
     },
     'proxies': [],
-    'proxy-groups': []
+    'proxy-groups': [],
+    'rule-providers': {
+		// 将由代码自动生成
+	}
+};
+
+export const SURGE_CONFIG = {
+	'general': {
+		'loglevel': 'info',
+		'allow-wifi-access': true,
+		'allow-hotspot-access': true,
+		'wifi-access-http-port': 6152,
+		'wifi-access-socks5-port': 6153,
+		'http-listen': '0.0.0.0:6152',
+		'socks5-listen': '0.0.0.0:6153',
+		'ipv6': false,
+		'dns-server': '180.184.1.1',
+		'read-etc-hosts': true,
+		'hijack-dns': '*:53',
+	}
 };
