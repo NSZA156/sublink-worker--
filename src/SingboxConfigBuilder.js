@@ -1,4 +1,4 @@
-import { SING_BOX_CONFIG, generateRuleSets, generateRules, getOutbounds, PREDEFINED_RULE_SETS} from './config.js';
+import { SING_BOX_CONFIG, generateSingboxRuleSets, generateRules, getOutbounds, PREDEFINED_RULE_SETS} from './config.js';
 import { BaseConfigBuilder } from './BaseConfigBuilder.js';
 import { DeepCopy } from './utils.js';
 import { t } from './i18n/index.js';
@@ -38,7 +38,7 @@ export class SingboxConfigBuilder extends BaseConfigBuilder {
     }
 
     addNodeSelectGroup(proxyList) {
-        proxyList.unshift('DIRECT', 'REJECT', t('outboundNames.Auto Select'));
+        proxyList.unshift('DIRECT', t('outboundNames.Auto Select'));
         this.config.outbounds.unshift({
             type: "selector",
             tag: t('outboundNames.Node Select'),
@@ -48,7 +48,7 @@ export class SingboxConfigBuilder extends BaseConfigBuilder {
 
     addOutboundGroups(outbounds, proxyList) {
         outbounds.forEach(outbound => {
-            if (outbound !== t('outboundNames.Node Select')) {
+            if (outbound !== t('outboundNames.Node Select') && outbound !== 'DIRECT' && outbound !== 'REJECT') {
                 this.config.outbounds.push({
                     type: "selector",
                     tag: t(`outboundNames.${outbound}`),
@@ -80,20 +80,22 @@ export class SingboxConfigBuilder extends BaseConfigBuilder {
 
     formatConfig() {
         const rules = generateRules(this.selectedRules, this.customRules);
-        const { site_rule_sets, ip_rule_sets } = generateRuleSets(this.selectedRules,this.customRules);
+        const { site_rule_sets, non_ip_rule_sets, ip_rule_sets } = generateSingboxRuleSets(this.selectedRules, this.non_ip_rule_sets, this.customRules);
 
-        this.config.route.rule_set = [...site_rule_sets, ...ip_rule_sets];
+        this.config.route.rule_set = [...site_rule_sets, ...non_ip_rule_sets, ...ip_rule_sets];
 
         this.config.route.rules = rules.map(rule => ({
             rule_set: [
-              ...(rule.site_rules.length > 0 && rule.site_rules[0] !== '' ? rule.site_rules : []),
-              ...(rule.ip_rules.filter(ip => ip.trim() !== '').map(ip => `${ip}-ip`))
+                ...(rule.site_rules.filter(site => site.trim() !== '').map(site => `${site}_domainset`)),
+                ...(rule.non_ip_rules.filter(non_ip => non_ip.trim() !== '').map(non_ip => `${non_ip}_non_ip`)),
+                ...(rule.ip_rules.filter(ip => ip.trim() !== '').map(ip => `${ip}_ip`))
             ],
             domain_suffix: rule.domain_suffix,
             domain_keyword: rule.domain_keyword,
             ip_cidr: rule.ip_cidr,
             protocol: rule.protocol,
-            outbound: t(`outboundNames.${rule.outbound}`)
+            outbound: rule.outbound == 'REJECT' ? undefined : t(`outboundNames.${rule.outbound}`),
+            action: rule.outbound == 'REJECT' ? 'reject' : undefined
         }));
 
         this.config.route.rules.unshift(

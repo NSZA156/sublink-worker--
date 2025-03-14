@@ -390,7 +390,6 @@ const generateRuleSetSelection = () => `
     <div class="content-container mb-3">
       <select class="form-select" id="predefinedRules" onchange="applyPredefinedRules()">
         <option value="custom">${t('custom')}</option>
-        <option value="minimal">${t('minimal')}</option>
         <option value="balanced">${t('balanced')}</option>
         <option value="comprehensive">${t('comprehensive')}</option>
       </select>

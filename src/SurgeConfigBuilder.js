@@ -1,5 +1,5 @@
 import { BaseConfigBuilder } from './BaseConfigBuilder.js';
-import { generateRules, SURGE_CONFIG, getOutbounds, PREDEFINED_RULE_SETS } from './config.js';
+import { generateRules, SURGE_CONFIG, SURGE_SITE_RULE_SET_BASE_URL, SURGE_NON_IP_RULE_SET_BASE_URL, SURGE_IP_RULE_SET_BASE_URL, getOutbounds, PREDEFINED_RULE_SETS } from './config.js';
 import { t } from './i18n/index.js';
 
 export class SurgeConfigBuilder extends BaseConfigBuilder {
@@ -117,7 +117,7 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
     }
 
     createProxyGroup(name, type, options = [], extraConfig = '') {
-        const baseOptions = type === 'url-test' ? [] : ['DIRECT', 'REJECT-DROP'];
+        const baseOptions = type === 'url-test' ? [] : ['DIRECT'];
         const proxyNames = this.getProxies().map(proxy => this.getProxyName(proxy));
         const allOptions = [...baseOptions, ...options, ...proxyNames];
         return `${name} = ${type}, ${allOptions.join(', ')}${extraConfig}`;
@@ -138,8 +138,8 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
 
     addOutboundGroups(outbounds, proxyList) {
         outbounds.forEach(outbound => {
-            if (outbound !== t('outboundNames.Node Select')) {
-                this.config['proxy-groups'].push(
+            if (outbound !== t('outboundNames.Node Select') && outbound !== 'REJECT' && outbound !== 'DIRECT') {
+                this.config['proxy-groups'].unshift(
                     this.createProxyGroup(t(`outboundNames.${outbound}`), 'select', [t('outboundNames.Node Select')])
                 );
             }
@@ -178,13 +178,6 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
             });
         }
 
-        if (this.config.replica) {
-            finalConfig.push('\n[Replica]');
-            Object.entries(this.config.replica).forEach(([key, value]) => {
-                finalConfig.push(`${key} = ${value}`);
-            });
-        }
-
         finalConfig.push('\n[Proxy]');
         finalConfig.push('DIRECT = direct');
         if (this.config.proxies) {
@@ -200,34 +193,19 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
         rules.forEach(rule => {
             if (rule.site_rules[0] !== '') {
                 rule.site_rules.forEach(site => {
-                    switch (site.toLowerCase()) {
-                        case 'cn':
-                            finalConfig.push(`DOMAIN-SUFFIX,cn,${t('outboundNames.'+ rule.outbound)}`);
-                            finalConfig.push(`DOMAIN-SUFFIX,com.cn,${t('outboundNames.'+ rule.outbound)}`);
-                            finalConfig.push(`DOMAIN-SUFFIX,edu.cn,${t('outboundNames.'+ rule.outbound)}`);
-                            finalConfig.push(`DOMAIN-SUFFIX,gov.cn,${t('outboundNames.'+ rule.outbound)}`);
-                            break;
-                        case 'google':
-                            finalConfig.push(`DOMAIN-SUFFIX,google.com,${t('outboundNames.'+ rule.outbound)}`);
-                            finalConfig.push(`DOMAIN-SUFFIX,googleapis.com,${t('outboundNames.'+ rule.outbound)}`);
-                            finalConfig.push(`DOMAIN-SUFFIX,googlevideo.com,${t('outboundNames.'+ rule.outbound)}`);
-                            finalConfig.push(`DOMAIN-KEYWORD,google,${t('outboundNames.'+ rule.outbound)}`);
-                            break;
-                        case 'telegram':
-                            finalConfig.push(`DOMAIN-SUFFIX,telegram.org,${t('outboundNames.'+ rule.outbound)}`);
-                            finalConfig.push(`DOMAIN-SUFFIX,telegram.me,${t('outboundNames.'+ rule.outbound)}`);
-                            finalConfig.push(`DOMAIN-SUFFIX,t.me,${t('outboundNames.'+ rule.outbound)}`);
-                            finalConfig.push(`DOMAIN-KEYWORD,telegram,${t('outboundNames.'+ rule.outbound)}`);
-                            break;
-                        default:
-                            finalConfig.push(`DOMAIN-KEYWORD,${site},${t('outboundNames.'+ rule.outbound)}`);
-                    }
+                    finalConfig.push(`RULE-SET,${SURGE_SITE_RULE_SET_BASE_URL}${site},${t('outboundNames.'+ rule.outbound)}`);
+                });
+            }
+
+            if (rule.non_ip_rules[0] !== '') {
+                rule.non_ip_rules.forEach(non_ip => {
+                    finalConfig.push(`RULE-SET,${SURGE_NON_IP_RULE_SET_BASE_URL}${non_ip}.conf,${t('outboundNames.'+ rule.outbound)}`);
                 });
             }
 
             if (rule.ip_rules[0] !== '') {
                 rule.ip_rules.forEach(ip => {
-                    finalConfig.push(`GEOIP,${ip},${t('outboundNames.'+ rule.outbound)}`);
+                    finalConfig.push(`RULE-SET,${SURGE_IP_RULE_SET_BASE_URL}${ip}.conf,${t('outboundNames.'+ rule.outbound)}`);
                 });
             }
 
