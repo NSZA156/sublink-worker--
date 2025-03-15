@@ -34,6 +34,8 @@ export class SingboxConfigBuilder extends BaseConfigBuilder {
             type: "urltest",
             tag: t('outboundNames.Auto Select'),
             outbounds: DeepCopy(proxyList),
+            url: "http://www.v2ex.com/generate_204",
+            interval: "10m"
         });
     }
 

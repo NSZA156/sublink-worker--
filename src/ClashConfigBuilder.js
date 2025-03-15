@@ -148,7 +148,9 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
         this.config['proxy-groups'].push({
             name: t('outboundNames.Auto Select'),
             type: 'url-test',
-            proxies: DeepCopy(proxyList)
+            proxies: DeepCopy(proxyList),
+            url: 'http://www.v2ex.com/generate_204',
+            interval: '600'
         });
     }
 

@@ -509,5 +509,6 @@ export const SURGE_CONFIG = {
 		'dns-server': '180.184.1.1',
 		'read-etc-hosts': true,
 		'hijack-dns': '*:53',
+		'proxy-test-url': 'http://www.v2ex.com/generate_204'
 	}
 };
