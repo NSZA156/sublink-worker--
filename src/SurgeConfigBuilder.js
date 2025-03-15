@@ -194,11 +194,11 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
             if (rule.site_rules[0] !== '') {
                 rule.site_rules.forEach(site => {
                     if (getActions(rule.outbound) == 'REJECT') {
-                        finalConfig.push(`RULE-SET,${SURGE_SITE_RULE_SET_BASE_URL}${site}.conf,REJECT`);
+                        finalConfig.push(`DOMAIN-SET,${SURGE_SITE_RULE_SET_BASE_URL}${site}.conf,REJECT`);
                     } else if (getActions(rule.outbound) == 'DIRECT') {
-                        finalConfig.push(`RULE-SET,${SURGE_SITE_RULE_SET_BASE_URL}${site}.conf,DIRECT`);
+                        finalConfig.push(`DOMAIN-SET,${SURGE_SITE_RULE_SET_BASE_URL}${site}.conf,DIRECT`);
                     } else {
-                        finalConfig.push(`RULE-SET,${SURGE_SITE_RULE_SET_BASE_URL}${site}.conf,${t('outboundNames.'+ rule.outbound)}`);
+                        finalConfig.push(`DOMAIN-SET,${SURGE_SITE_RULE_SET_BASE_URL}${site}.conf,${t('outboundNames.'+ rule.outbound)}`);
                     }
                 });
             }
