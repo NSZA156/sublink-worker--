@@ -117,7 +117,7 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
     }
 
     createProxyGroup(name, type, options = [], extraConfig = '') {
-        const baseOptions = type === 'url-test' ? [] : ['DIRECT'];
+        const baseOptions = [];
         const proxyNames = this.getProxies().map(proxy => this.getProxyName(proxy));
         const allOptions = [...baseOptions, ...options, ...proxyNames];
         return `${name} = ${type}, ${allOptions.join(', ')}${extraConfig}`;
@@ -132,15 +132,15 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
 
     addNodeSelectGroup(proxyList) {
         this.config['proxy-groups'].push(
-            this.createProxyGroup(t('outboundNames.Node Select'), 'select', [t('outboundNames.Auto Select')])
+            this.createProxyGroup(t('outboundNames.Node Select'), 'select', [t('outboundNames.Auto Select'), 'DIRECT'])
         );
     }
 
     addOutboundGroups(outbounds, proxyList) {
         outbounds.forEach(outbound => {
             if (outbound !== t('outboundNames.Node Select') && getActions(outbound) != 'REJECT' && getActions(outbound) != 'DIRECT') {
-                this.config['proxy-groups'].unshift(
-                    this.createProxyGroup(t(`outboundNames.${outbound}`), 'select', [t('outboundNames.Node Select')])
+                this.config['proxy-groups'].push(
+                    this.createProxyGroup(t(`outboundNames.${outbound}`), 'select', [t('outboundNames.Node Select'), 'DIRECT', t('outboundNames.Auto Select')])
                 );
             }
         });
