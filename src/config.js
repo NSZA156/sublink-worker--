@@ -1,162 +1,181 @@
 import { t } from './i18n';
 
-export const SITE_RULE_SET_BASE_URL = 'https://gh.sageer.me/https://raw.githubusercontent.com/lyc8503/sing-box-rules/refs/heads/rule-set-geosite/';
-export const IP_RULE_SET_BASE_URL = 'https://gh.sageer.me/https://raw.githubusercontent.com/lyc8503/sing-box-rules/refs/heads/rule-set-geoip/';
-export const CLASH_SITE_RULE_SET_BASE_URL = 'https://gh.sageer.me/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/';
-export const CLASH_IP_RULE_SET_BASE_URL = 'https://gh.sageer.me/https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/';
+export const SINGBOX_SITE_RULE_SET_BASE_URL = 'https://ruleset.skk.moe/sing-box/domainset/';
+export const SINGBOX_NON_IP_RULE_SET_BASE_URL = 'https://ruleset.skk.moe/sing-box/non_ip/';
+export const SINGBOX_IP_RULE_SET_BASE_URL = 'https://ruleset.skk.moe/sing-box/ip/';
+export const CLASH_SITE_RULE_SET_BASE_URL = 'https://ruleset.skk.moe/Clash/domainset/';
+export const CLASH_NON_IP_RULE_SET_BASE_URL = 'https://ruleset.skk.moe/Clash/non_ip/';
+export const CLASH_IP_RULE_SET_BASE_URL = 'https://ruleset.skk.moe/Clash/ip/';
+export const SURGE_SITE_RULE_SET_BASE_URL = 'https://ruleset.skk.moe/List/domainset/';
+export const SURGE_NON_IP_RULE_SET_BASE_URL = 'https://ruleset.skk.moe/List/non_ip/';
+export const SURGE_IP_RULE_SET_BASE_URL = 'https://ruleset.skk.moe/List/ip/';
 // Custom rules
 export const CUSTOM_RULES = [];
 // Unified rule structure
+// The order of the rules was adjusted, 
+// and don't change them unless you know what you're doing!
+// Confusion of order will cause some rules to lapse!!!
 export const UNIFIED_RULES = [
 	{
+		name: 'Evil Sogou',
+		outbound: 'REJECT',
+		site_rules: ['sogouinput'],
+		non_ip_rules: [],
+		ip_rules: []
+	},
+	{
 		name: 'Ad Block',
-		outbound: t('outboundNames.Ad Block'),
-		site_rules: ['category-ads-all'],
-		ip_rules: []
+		outbound: 'REJECT',
+		site_rules: ['reject'],
+		non_ip_rules: ['reject'],
+		ip_rules: ['reject']
 	},
 	{
-		name: 'AI Services',
-		outbound: t('outboundNames.AI Services'),
-		site_rules: ['category-ai-chat-!cn',],
-		ip_rules: []
-	},
-	{
-		name: 'Bilibili',
-		outbound: t('outboundNames.Bilibili'),
-		site_rules: ['bilibili'],
-		ip_rules: []
-	},
-	{
-		name: 'Youtube',
-		outbound: t('outboundNames.Youtube'),
-		site_rules: ['youtube'],
-		ip_rules: []
-	},
-	{
-		name: 'Google',
-		outbound: t('outboundNames.Google'),
-		site_rules: ['google'],
-		ip_rules: ['google']
-	},
-	{
-		name: 'Private',
-		outbound: t('outboundNames.Private'),
+		name: 'Netease Music',
+		outbound: t('outboundNames.Netease'),
 		site_rules: [],
-		ip_rules: ['private']
+		non_ip_rules: ['neteasemusic'],
+		ip_rules: []
 	},
 	{
-		name: 'Location:CN',
-		outbound: t('outboundNames.Location:CN'),
-		site_rules: ['geolocation-cn'],
-		ip_rules: ['cn']
+		name: 'Lan',
+		outbound: 'DIRECT',
+		site_rules: [],
+		non_ip_rules: ['lan'],
+		ip_rules: ['lan']
+	},
+	{
+		name: 'CN Website',
+		outbound: 'DIRECT',
+		site_rules: [],
+		non_ip_rules: ['domestic'],
+		ip_rules: ['domestic', 'china_ip']
+	},
+	{
+		name: 'Direct',
+		outbound: 'DIRECT',
+		site_rules: [],
+		non_ip_rules: ['direct'],
+		ip_rules: []
+	},
+	{
+		name: 'AppleCN',
+		outbound: 'DIRECT',
+		site_rules: [],
+		non_ip_rules: ['apple_cn'],
+		ip_rules: []
+	},
+	{
+		name: 'Speedtest',
+		outbound: t('outboundNames.Speedtest'),
+		site_rules: ['speedtest'],
+		non_ip_rules: [],
+		ip_rules: []
+	},
+	{
+		name: 'Global Website',
+		outbound: t('outboundNames.Global Website'),
+		site_rules: ['cdn'],
+		non_ip_rules: ['cdn', 'global'],
+		ip_rules: []
+	},
+	{
+		name: 'Global Media',
+		outbound: t('outboundNames.Global Media'),
+		site_rules: [],
+		non_ip_rules: ['stream'],
+		ip_rules: ['stream']
 	},
 	{
 		name: 'Telegram',
 		outbound: t('outboundNames.Telegram'),
 		site_rules: [],
+		non_ip_rules: ['telegram'],
 		ip_rules: ['telegram']
 	},
 	{
-		name: 'Github',
-		outbound: t('outboundNames.Github'),
-		site_rules: ['github', 'gitlab'],
+		name: 'AppleMS CDN',
+		outbound: t('outboundNames.AppleMS CDN'),
+		site_rules: [],
+		non_ip_rules: ['apple_cdn', 'microsoft_cdn'],
 		ip_rules: []
 	},
 	{
-		name: 'Microsoft',
-		outbound: t('outboundNames.Microsoft'),
-		site_rules: ['microsoft'],
+		name: 'Game Software',
+		outbound: t('outboundNames.Game Software'),
+		site_rules: ['download'],
+		non_ip_rules: ['download'],
 		ip_rules: []
 	},
 	{
-		name: 'Apple',
-		outbound: t('outboundNames.Apple'),
-		site_rules: ['apple'],
+		name: 'Apple Microsoft',
+		outbound: t('outboundNames.Apple Microsoft'),
+		site_rules: [],
+		non_ip_rules: ['apple_services', 'microsoft'],
 		ip_rules: []
 	},
 	{
-		name: 'Social Media',
-		outbound: t('outboundNames.Social Media'),
-		site_rules: ['facebook', 'instagram', 'twitter', 'tiktok', 'linkedin'],
-		ip_rules: []
-	},
-	{
-		name: 'Streaming',
-		outbound: t('outboundNames.Streaming'),
-		site_rules: ['netflix', 'hulu', 'disney', 'hbo', 'amazon','bahamut'],
-		ip_rules: []
-	},
-	{
-		name: 'Gaming',
-		outbound: t('outboundNames.Gaming'),
-		site_rules: ['steam', 'epicgames', 'ea', 'ubisoft', 'blizzard'],
-		ip_rules: []
-	},
-	{
-		name: 'Education',
-		outbound: t('outboundNames.Education'),
-		site_rules: ['coursera', 'edx', 'udemy', 'khanacademy', 'category-scholar-!cn'],
-		ip_rules: []
-	},
-	{
-		name: 'Financial',
-		outbound: t('outboundNames.Financial'),
-		site_rules: ['paypal', 'visa', 'mastercard','stripe','wise'],
-		ip_rules: []
-	},
-	{
-		name: 'Cloud Services',
-		outbound: t('outboundNames.Cloud Services'),
-		site_rules: ['aws', 'azure', 'digitalocean', 'heroku', 'dropbox'],
-		ip_rules: []
-	},
-	{
-		name: 'Non-China',
-		outbound: t('outboundNames.Non-China'),
-		site_rules: ['geolocation-!cn'],
+		name: 'AI Platform',
+		outbound: t('outboundNames.AI Platform'),
+		site_rules: [],
+		non_ip_rules: ['ai'],
 		ip_rules: []
 	}
 ];
 
 export const PREDEFINED_RULE_SETS = {
-	minimal: ['Location:CN', 'Private', 'Non-China'],
-	balanced: ['Location:CN', 'Private', 'Non-China', 'Google', 'Youtube', 'AI Services', 'Telegram'],
+	balanced: ['Ad Block', 'Lan', 'CN Website', 'Direct', 'AppleCN', 'Global Website', 'Global Media', 'Telegram', 'Game Software', 'Apple Microsoft', 'AI Platform'],
 	comprehensive: UNIFIED_RULES.map(rule => rule.name)
   };
   
 
 
-// Generate SITE_RULE_SETS and IP_RULE_SETS from UNIFIED_RULES
-export const SITE_RULE_SETS = UNIFIED_RULES.reduce((acc, rule) => {
+// Generate SINGBOX_SITE_RULE_SETS and SINGBOX_IP_RULE_SETS from UNIFIED_RULES
+export const SINGBOX_SITE_RULE_SETS = UNIFIED_RULES.reduce((acc, rule) => {
 	rule.site_rules.forEach(site_rule => {
-		acc[site_rule] = `geosite-${site_rule}.srs`;
+		acc[site_rule] = `${site_rule}.json`;
 	});
 	return acc;
 }, {});
 
-export const IP_RULE_SETS = UNIFIED_RULES.reduce((acc, rule) => {
+export const SINGBOX_NON_IP_RULE_SETS = UNIFIED_RULES.reduce((acc, rule) => {
+	rule.non_ip_rules.forEach(non_ip_rule => {
+		acc[non_ip_rule] = `${non_ip_rule}.json`;
+	});
+	return acc;
+}, {});
+
+export const SINGBOX_IP_RULE_SETS = UNIFIED_RULES.reduce((acc, rule) => {
 	rule.ip_rules.forEach(ip_rule => {
-		acc[ip_rule] = `geoip-${ip_rule}.srs`;
+		acc[ip_rule] = `${ip_rule}.json`;
 	});
 	return acc;
 }, {});
 
-// Generate CLASH_SITE_RULE_SETS and CLASH_IP_RULE_SETS for .mrs format
+// Generate CLASH_SITE_RULE_SETS and CLASH_IP_RULE_SETS for .txt format
 export const CLASH_SITE_RULE_SETS = UNIFIED_RULES.reduce((acc, rule) => {
 	rule.site_rules.forEach(site_rule => {
-		acc[site_rule] = `${site_rule}.mrs`;
+		acc[site_rule] = `${site_rule}.txt`;
+	});
+	return acc;
+}, {});
+
+export const CLASH_NON_IP_RULE_SETS = UNIFIED_RULES.reduce((acc, rule) => {
+	rule.non_ip_rules.forEach(non_ip_rule => {
+		acc[non_ip_rule] = `${non_ip_rule}.txt`;
 	});
 	return acc;
 }, {});
 
 export const CLASH_IP_RULE_SETS = UNIFIED_RULES.reduce((acc, rule) => {
 	rule.ip_rules.forEach(ip_rule => {
-		acc[ip_rule] = `${ip_rule}.mrs`;
+		acc[ip_rule] = `${ip_rule}.txt`;
 	});
 	return acc;
 }, {});
 
 // Helper function to get outbounds based on selected rule names
+// This is confusing! --NSZA156
 export function getOutbounds(selectedRuleNames) {
     if (!selectedRuleNames || !Array.isArray(selectedRuleNames)) {
         return [];
@@ -166,6 +185,13 @@ export function getOutbounds(selectedRuleNames) {
       .map(rule => rule.name);
 }
 
+// To Avoid another level confusion, Here is a new function to get Outbounds/Actions OF THE RULES!
+export function getActions(selectedRuleOutbounds) {
+    return UNIFIED_RULES
+      .filter(rule => selectedRuleOutbounds.includes(rule.name))
+      .map(rule => rule.outbound);
+}
+
 // Helper function to generate rules based on selected rule names
 export function generateRules(selectedRules = [], customRules = []) {
 	if (typeof selectedRules === 'string' && PREDEFINED_RULE_SETS[selectedRules]) {
@@ -173,7 +199,7 @@ export function generateRules(selectedRules = [], customRules = []) {
 	}
   
 	if (!selectedRules || selectedRules.length === 0) {
-	  selectedRules = PREDEFINED_RULE_SETS.minimal;
+	  selectedRules = PREDEFINED_RULE_SETS.balanced;
 	}
   
 	const rules = [];
@@ -182,6 +208,7 @@ export function generateRules(selectedRules = [], customRules = []) {
 	  if (selectedRules.includes(rule.name)) {
 		rules.push({
 		  site_rules: rule.site_rules,
+		  non_ip_rules: rule.non_ip_rules,
 		  ip_rules: rule.ip_rules,
 		  domain_suffix: rule?.domain_suffix,
 		  ip_cidr: rule?.ip_cidr,
@@ -204,21 +231,22 @@ export function generateRules(selectedRules = [], customRules = []) {
 		});
   
 	return rules;
-  }
+}
 
 
-export function generateRuleSets(selectedRules = [], customRules = []) {
+export function generateSingboxRuleSets(selectedRules = [], customRules = []) {
   if (typeof selectedRules === 'string' && PREDEFINED_RULE_SETS[selectedRules]) {
     selectedRules = PREDEFINED_RULE_SETS[selectedRules];
   }
   
   if (!selectedRules || selectedRules.length === 0) {
-    selectedRules = PREDEFINED_RULE_SETS.minimal;
+    selectedRules = PREDEFINED_RULE_SETS.balanced;
   }
 
   const selectedRulesSet = new Set(selectedRules);
 
   const siteRuleSets = new Set();
+  const nonIpRuleSets = new Set();
   const ipRuleSets = new Set();
 
   const ruleSets = [];
@@ -226,157 +254,150 @@ export function generateRuleSets(selectedRules = [], customRules = []) {
   UNIFIED_RULES.forEach(rule => {
     if (selectedRulesSet.has(rule.name)) {
       rule.site_rules.forEach(siteRule => siteRuleSets.add(siteRule));
+	  rule.non_ip_rules.forEach(nonIpRule => nonIpRuleSets.add(nonIpRule));
       rule.ip_rules.forEach(ipRule => ipRuleSets.add(ipRule));
     }
   });
   
-
-
-  const site_rule_sets = Array.from(siteRuleSets).map(rule => ({
-    tag: rule,
+  const singbox_site_rule_sets = Array.from(siteRuleSets).map(rule => ({
+    tag: `${rule}_domainset`,
     type: 'remote',
-    format: 'binary',
-    url: `${SITE_RULE_SET_BASE_URL}${SITE_RULE_SETS[rule]}`,
+    format: 'source',
+    url: `${SINGBOX_SITE_RULE_SET_BASE_URL}${SINGBOX_SITE_RULE_SETS[rule]}`
   }));
 
-  const ip_rule_sets = Array.from(ipRuleSets).map(rule => ({
-    tag: `${rule}-ip`,
+  const singbox_non_ip_rule_sets = Array.from(nonIpRuleSets).map(rule => ({
+    tag: `${rule}_non_ip`,
     type: 'remote',
-    format: 'binary',
-    url: `${IP_RULE_SET_BASE_URL}${IP_RULE_SETS[rule]}`,
+    format: 'source',
+    url: `${SINGBOX_NON_IP_RULE_SET_BASE_URL}${SINGBOX_NON_IP_RULE_SETS[rule]}`
   }));
 
-  if(!selectedRules.includes('Non-China')){
-	site_rule_sets.push({
-		tag: 'geolocation-!cn',
-		type: 'remote',
-		format: 'binary',
-		url: `${SITE_RULE_SET_BASE_URL}geosite-geolocation-!cn.srs`,
-	});
-  }
+  const singbox_ip_rule_sets = Array.from(ipRuleSets).map(rule => ({
+    tag: `${rule}_ip`,
+    type: 'remote',
+    format: 'source',
+    url: `${SINGBOX_IP_RULE_SET_BASE_URL}${SINGBOX_IP_RULE_SETS[rule]}`
+  }));
 
-  if(customRules){
-	customRules.forEach(rule => {
-		if(rule.site!=''){
-			rule.site.split(',').forEach(site => {
-				site_rule_sets.push({
-					tag: site.trim(),
-					type: 'remote',
-					format: 'binary',
-					url: `${SITE_RULE_SET_BASE_URL}geosite-${site.trim()}.srs`,
-				});
-			});
-		}
-		if(rule.ip!=''){
-			rule.ip.split(',').forEach(ip => {
-				ip_rule_sets.push({
-					tag: `${ip.trim()}-ip`,
-					type: 'remote',
-					format: 'binary',
-					url: `${IP_RULE_SET_BASE_URL}geoip-${ip.trim()}.srs`,
-				});
-			});
-		}
-	});
-	}
+//   if(customRules){
+// 	customRules.forEach(rule => {
+// 		if(rule.site!=''){
+// 			rule.site.split(',').forEach(site => {
+// 				singbox_site_rule_sets.push({
+// 					tag: site.trim(),
+// 					type: 'remote',
+// 					format: 'binary',
+// 					url: `${SINGBOX_SITE_RULE_SET_BASE_URL}geosite-${site.trim()}.srs`,
+// 				});
+// 			});
+// 		}
+// 		if(rule.ip!=''){
+// 			rule.ip.split(',').forEach(ip => {
+// 				singbox_ip_rule_sets.push({
+// 					tag: `${ip.trim()}-ip`,
+// 					type: 'remote',
+// 					format: 'binary',
+// 					url: `${SINGBOX_IP_RULE_SET_BASE_URL}geoip-${ip.trim()}.srs`,
+// 				});
+// 			});
+// 		}
+// 	});
+// 	}
 
-  ruleSets.push(...site_rule_sets, ...ip_rule_sets);
+  ruleSets.push(...singbox_site_rule_sets, ...singbox_non_ip_rule_sets, ...singbox_ip_rule_sets);
 
-  return { site_rule_sets, ip_rule_sets };
+  return { singbox_site_rule_sets, singbox_non_ip_rule_sets, singbox_ip_rule_sets };
 }
 
-// Generate rule sets for Clash using .mrs format
+// Generate rule sets for Clash using .txt format
 export function generateClashRuleSets(selectedRules = [], customRules = []) {
   if (typeof selectedRules === 'string' && PREDEFINED_RULE_SETS[selectedRules]) {
     selectedRules = PREDEFINED_RULE_SETS[selectedRules];
   }
   
   if (!selectedRules || selectedRules.length === 0) {
-    selectedRules = PREDEFINED_RULE_SETS.minimal;
+    selectedRules = PREDEFINED_RULE_SETS.balanced;
   }
 
   const selectedRulesSet = new Set(selectedRules);
 
   const siteRuleSets = new Set();
+  const nonIpRuleSets = new Set();
   const ipRuleSets = new Set();
 
   UNIFIED_RULES.forEach(rule => {
     if (selectedRulesSet.has(rule.name)) {
       rule.site_rules.forEach(siteRule => siteRuleSets.add(siteRule));
+	  rule.non_ip_rules.forEach(nonIpRule => nonIpRuleSets.add(nonIpRule))
       rule.ip_rules.forEach(ipRule => ipRuleSets.add(ipRule));
     }
   });
 
   const site_rule_providers = {};
+  const non_ip_rule_providers = {};
   const ip_rule_providers = {};
 
   Array.from(siteRuleSets).forEach(rule => {
-    site_rule_providers[rule] = {
+    site_rule_providers[rule+'_domainset'] = {
       type: 'http',
-      format: 'mrs',
+      format: 'text',
       behavior: 'domain',
-      url: `${CLASH_SITE_RULE_SET_BASE_URL}${CLASH_SITE_RULE_SETS[rule]}`,
-      path: `./ruleset/${CLASH_SITE_RULE_SETS[rule]}`,
-      interval: 86400
+      url: `${CLASH_SITE_RULE_SET_BASE_URL}${CLASH_SITE_RULE_SETS[rule]}`
+    };
+  });
+
+  Array.from(nonIpRuleSets).forEach(rule => {
+    non_ip_rule_providers[rule+'_non_ip'] = {
+      type: 'http',
+      format: 'text',
+      behavior: 'classical',
+      url: `${CLASH_NON_IP_RULE_SET_BASE_URL}${CLASH_NON_IP_RULE_SETS[rule]}`
     };
   });
 
   Array.from(ipRuleSets).forEach(rule => {
-    ip_rule_providers[rule] = {
+    ip_rule_providers[rule+'_ip'] = {
       type: 'http',
-      format: 'mrs',
-      behavior: 'ipcidr',
-      url: `${CLASH_IP_RULE_SET_BASE_URL}${CLASH_IP_RULE_SETS[rule]}`,
-      path: `./ruleset/${CLASH_IP_RULE_SETS[rule]}`,
-      interval: 86400
+      format: 'text',
+      behavior: 'classical',
+      url: `${CLASH_IP_RULE_SET_BASE_URL}${CLASH_IP_RULE_SETS[rule]}`
     };
   });
 
-  // Add Non-China rule set if not included
-  if(!selectedRules.includes('Non-China')){
-    site_rule_providers['geolocation-!cn'] = {
-      type: 'http',
-      format: 'mrs',
-      behavior: 'domain',
-      url: `${CLASH_SITE_RULE_SET_BASE_URL}geolocation-!cn.mrs`,
-      path: './ruleset/geolocation-!cn.mrs',
-      interval: 86400
-    };
-  }
+  if (ip_rule_providers['china_ip']) {
+	ip_rule_providers['china_ip'].format = 'ipcidr';
+  };
 
-  // Add custom rules
-  if(customRules){
-    customRules.forEach(rule => {
-      if(rule.site!=''){
-        rule.site.split(',').forEach(site => {
-          const site_trimmed = site.trim();
-          site_rule_providers[site_trimmed] = {
-            type: 'http',
-            format: 'mrs',
-            behavior: 'domain',
-            url: `${CLASH_SITE_RULE_SET_BASE_URL}${site_trimmed}.mrs`,
-            path: `./ruleset/${site_trimmed}.mrs`,
-            interval: 86400
-          };
-        });
-      }
-      if(rule.ip!=''){
-        rule.ip.split(',').forEach(ip => {
-          const ip_trimmed = ip.trim();
-          ip_rule_providers[ip_trimmed] = {
-            type: 'http',
-            format: 'mrs',
-            behavior: 'ipcidr',
-            url: `${CLASH_IP_RULE_SET_BASE_URL}${ip_trimmed}.mrs`,
-            path: `./ruleset/${ip_trimmed}.mrs`,
-            interval: 86400
-          };
-        });
-      }
-    });
-  }
+// Add custom rules
+//   if(customRules){
+//     customRules.forEach(rule => {
+//       if(rule.site!=''){
+//         rule.site.split(',').forEach(site => {
+//           const site_trimmed = site.trim();
+//           site_rule_providers[site_trimmed] = {
+//             type: 'http',
+//             format: 'mrs',
+//             behavior: 'domain',
+//             url: `${CLASH_SITE_RULE_SET_BASE_URL}${site_trimmed}.mrs`
+//           };
+//         });
+//       }
+//       if(rule.ip!=''){
+//         rule.ip.split(',').forEach(ip => {
+//           const ip_trimmed = ip.trim();
+//           ip_rule_providers[ip_trimmed] = {
+//             type: 'http',
+//             format: 'mrs',
+//             behavior: 'ipcidr',
+//             url: `${CLASH_IP_RULE_SET_BASE_URL}${ip_trimmed}.mrs`
+//           };
+//         });
+//       }
+//     });
+//   }
 
-  return { site_rule_providers, ip_rule_providers };
+  return { site_rule_providers, non_ip_rule_providers, ip_rule_providers };
 }
 
 // Singbox configuration
@@ -429,16 +450,7 @@ export const SING_BOX_CONFIG = {
 	],
 	route : {
 		rule_set: [],
-		rules: [
-			{
-				inbound: ["mixed-in", "tun-in"],
-				action: "sniff"
-			},
-			{
-				port: 53,
-				action: "hijack-dns"
-			}
-		]
+		rules: []
 	}
 };
 

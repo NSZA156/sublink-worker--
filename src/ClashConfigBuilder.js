@@ -1,5 +1,5 @@
 import yaml from 'js-yaml';
-import { CLASH_CONFIG, generateRules, generateClashRuleSets, getOutbounds, PREDEFINED_RULE_SETS } from './config.js';
+import { CLASH_CONFIG, generateRules, generateClashRuleSets, getOutbounds, PREDEFINED_RULE_SETS, getActions, UNIFIED_RULES } from './config.js';
 import { BaseConfigBuilder } from './BaseConfigBuilder.js';
 import { DeepCopy } from './utils.js';
 import { t } from './i18n/index.js';
@@ -148,15 +148,12 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
         this.config['proxy-groups'].push({
             name: t('outboundNames.Auto Select'),
             type: 'url-test',
-            proxies: DeepCopy(proxyList),
-            url: 'https://www.gstatic.com/generate_204',
-            interval: 300,
-            lazy: false
+            proxies: DeepCopy(proxyList)
         });
     }
 
     addNodeSelectGroup(proxyList) {
-        proxyList.unshift('DIRECT', 'REJECT', t('outboundNames.Auto Select'));
+        proxyList.unshift('DIRECT', t('outboundNames.Auto Select'));
         this.config['proxy-groups'].unshift({
             type: "select",
             name: t('outboundNames.Node Select'),
@@ -166,7 +163,7 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
 
     addOutboundGroups(outbounds, proxyList) {
         outbounds.forEach(outbound => {
-            if (outbound !== t('outboundNames.Node Select')) {
+            if (outbound !== t('outboundNames.Node Select') && getActions(outbound) != 'DIRECT' && getActions(outbound) != 'REJECT') {
                 this.config['proxy-groups'].push({
                     type: "select",
                     name: t(`outboundNames.${outbound}`),
@@ -204,12 +201,13 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
     formatConfig() {
         const rules = this.generateRules();
         
-        // 获取.mrs规则集配置
-        const { site_rule_providers, ip_rule_providers } = generateClashRuleSets(this.selectedRules, this.customRules);
+        // 获取.txt规则集配置
+        const { site_rule_providers, non_ip_rule_providers, ip_rule_providers } = generateClashRuleSets(this.selectedRules, this.customRules);
         
         // 添加规则集提供者
         this.config['rule-providers'] = {
             ...site_rule_providers,
+            ...non_ip_rule_providers,
             ...ip_rule_providers
         };
 
@@ -220,14 +218,38 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
             // 使用RULE-SET格式的站点规则
             if (rule.site_rules && rule.site_rules[0] !== '') {
                 rule.site_rules.forEach(site => {
-                    ruleResults.push(`RULE-SET,${site},${t('outboundNames.'+ rule.outbound)}`);
+                    if (getActions(rule.outbound) == 'REJECT') {
+                        ruleResults.push(`RULE-SET,${site}_domainset,REJECT`);
+                    } else if (getActions(rule.outbound) == 'DIRECT') {
+                        ruleResults.push(`RULE-SET,${site}_domainset,DIRECT`);
+                    } else {
+                        ruleResults.push(`RULE-SET,${site}_domainset,${t('outboundNames.'+ rule.outbound)}`);
+                    }
+                });
+            }
+
+            if (rule.non_ip_rules && rule.non_ip_rules[0] !== '') {
+                rule.non_ip_rules.forEach(non_ip => {
+                    if (getActions(rule.outbound) ==  'REJECT') {
+                        ruleResults.push(`RULE-SET,${non_ip}_non_ip,REJECT`);
+                    } else if (getActions(rule.outbound) == 'DIRECT') {
+                        ruleResults.push(`RULE-SET,${non_ip}_non_ip,DIRECT`);
+                    } else {
+                        ruleResults.push(`RULE-SET,${non_ip}_non_ip,${t('outboundNames.'+ rule.outbound)}`);
+                    }
                 });
             }
             
             // 使用RULE-SET格式的IP规则
             if (rule.ip_rules && rule.ip_rules[0] !== '') {
                 rule.ip_rules.forEach(ip => {
-                    ruleResults.push(`RULE-SET,${ip},${t('outboundNames.'+ rule.outbound)}`);
+                    if (getActions(rule.outbound) == 'REJECT') {
+                        ruleResults.push(`RULE-SET,${ip}_ip,REJECT`);
+                    } else if (getActions(rule.outbound) == 'DIRECT') {
+                        ruleResults.push(`RULE-SET,${ip}_ip,DIRECT`);
+                    } else {
+                        ruleResults.push(`RULE-SET,${ip}_ip,${t('outboundNames.'+ rule.outbound)}`);
+                    }
                 });
             }
             

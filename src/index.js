@@ -44,7 +44,7 @@ async function handleRequest(request) {
           selectedRules = JSON.parse(decodeURIComponent(selectedRules));
         } catch (error) {
           console.error('Error parsing selectedRules:', error);
-          selectedRules = PREDEFINED_RULE_SETS.minimal;
+          selectedRules = PREDEFINED_RULE_SETS.balanced;
         }
       }
 
