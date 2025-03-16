@@ -175,6 +175,7 @@ export const CLASH_IP_RULE_SETS = UNIFIED_RULES.reduce((acc, rule) => {
 }, {});
 
 // Helper function to get outbounds based on selected rule names
+// This is confusing! --NSZA156
 export function getOutbounds(selectedRuleNames) {
     if (!selectedRuleNames || !Array.isArray(selectedRuleNames)) {
         return [];
@@ -182,6 +183,13 @@ export function getOutbounds(selectedRuleNames) {
     return UNIFIED_RULES
       .filter(rule => selectedRuleNames.includes(rule.name))
       .map(rule => rule.name);
+}
+
+// To Avoid another level confusion, Here is a new function to get Outbounds/Actions OF THE RULES!
+export function getActions(selectedRuleOutbounds) {
+    return UNIFIED_RULES
+      .filter(rule => selectedRuleOutbounds.includes(rule.name))
+      .map(rule => rule.outbound);
 }
 
 // Helper function to generate rules based on selected rule names
@@ -222,7 +230,7 @@ export function generateRules(selectedRules = [], customRules = []) {
 // 		});
 // 		});
   
-// 	return rules;
+	return rules;
 }
 
 
@@ -246,13 +254,11 @@ export function generateSingboxRuleSets(selectedRules = [], customRules = []) {
   UNIFIED_RULES.forEach(rule => {
     if (selectedRulesSet.has(rule.name)) {
       rule.site_rules.forEach(siteRule => siteRuleSets.add(siteRule));
-	  rule.non_ip_rules.forEach(nonIpRule => nonIpRuleSets.add(nonIpRule))
+	  rule.non_ip_rules.forEach(nonIpRule => nonIpRuleSets.add(nonIpRule));
       rule.ip_rules.forEach(ipRule => ipRuleSets.add(ipRule));
     }
   });
   
-
-
   const singbox_site_rule_sets = Array.from(siteRuleSets).map(rule => ({
     tag: `${rule}_domainset`,
     type: 'remote',
@@ -260,7 +266,7 @@ export function generateSingboxRuleSets(selectedRules = [], customRules = []) {
     url: `${SINGBOX_SITE_RULE_SET_BASE_URL}${SINGBOX_SITE_RULE_SETS[rule]}`
   }));
 
-  const singbox_non_ip_rule_sets = Array.from(siteRuleSets).map(rule => ({
+  const singbox_non_ip_rule_sets = Array.from(nonIpRuleSets).map(rule => ({
     tag: `${rule}_non_ip`,
     type: 'remote',
     format: 'source',
@@ -333,7 +339,7 @@ export function generateClashRuleSets(selectedRules = [], customRules = []) {
   const ip_rule_providers = {};
 
   Array.from(siteRuleSets).forEach(rule => {
-    site_rule_providers[rule] = {
+    site_rule_providers[rule+'_domainset'] = {
       type: 'http',
       format: 'text',
       behavior: 'domain',
@@ -342,7 +348,7 @@ export function generateClashRuleSets(selectedRules = [], customRules = []) {
   });
 
   Array.from(nonIpRuleSets).forEach(rule => {
-    non_ip_rule_providers[rule] = {
+    non_ip_rule_providers[rule+'_non_ip'] = {
       type: 'http',
       format: 'text',
       behavior: 'classical',
@@ -351,7 +357,7 @@ export function generateClashRuleSets(selectedRules = [], customRules = []) {
   });
 
   Array.from(ipRuleSets).forEach(rule => {
-    ip_rule_providers[rule] = {
+    ip_rule_providers[rule+'_ip'] = {
       type: 'http',
       format: 'text',
       behavior: 'classical',
@@ -444,16 +450,7 @@ export const SING_BOX_CONFIG = {
 	],
 	route : {
 		rule_set: [],
-		rules: [
-			{
-				inbound: ["mixed-in", "tun-in"],
-				action: "sniff"
-			},
-			{
-				port: 53,
-				action: "hijack-dns"
-			}
-		]
+		rules: []
 	}
 };
 
@@ -512,5 +509,6 @@ export const SURGE_CONFIG = {
 		'dns-server': '180.184.1.1',
 		'read-etc-hosts': true,
 		'hijack-dns': '*:53',
+		'proxy-test-url': 'http://www.v2ex.com/generate_204'
 	}
 };

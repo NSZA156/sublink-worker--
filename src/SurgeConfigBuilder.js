@@ -1,5 +1,5 @@
 import { BaseConfigBuilder } from './BaseConfigBuilder.js';
-import { generateRules, SURGE_CONFIG, SURGE_SITE_RULE_SET_BASE_URL, SURGE_NON_IP_RULE_SET_BASE_URL, SURGE_IP_RULE_SET_BASE_URL, getOutbounds, PREDEFINED_RULE_SETS } from './config.js';
+import { generateRules, SURGE_CONFIG, SURGE_SITE_RULE_SET_BASE_URL, SURGE_NON_IP_RULE_SET_BASE_URL, SURGE_IP_RULE_SET_BASE_URL, getOutbounds, PREDEFINED_RULE_SETS, getActions, UNIFIED_RULES } from './config.js';
 import { t } from './i18n/index.js';
 
 export class SurgeConfigBuilder extends BaseConfigBuilder {
@@ -117,7 +117,7 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
     }
 
     createProxyGroup(name, type, options = [], extraConfig = '') {
-        const baseOptions = type === 'url-test' ? [] : ['DIRECT'];
+        const baseOptions = [];
         const proxyNames = this.getProxies().map(proxy => this.getProxyName(proxy));
         const allOptions = [...baseOptions, ...options, ...proxyNames];
         return `${name} = ${type}, ${allOptions.join(', ')}${extraConfig}`;
@@ -126,21 +126,21 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
     addAutoSelectGroup(proxyList) {
         this.config['proxy-groups'] = this.config['proxy-groups'] || [];
         this.config['proxy-groups'].push(
-            this.createProxyGroup(t('outboundNames.Auto Select'), 'url-test', [])
+            this.createProxyGroup(t('outboundNames.Auto Select'), 'url-test', ['url = http://www.v2ex.com/generate_204', 'interval = 600'])
         );
     }
 
     addNodeSelectGroup(proxyList) {
         this.config['proxy-groups'].push(
-            this.createProxyGroup(t('outboundNames.Node Select'), 'select', [t('outboundNames.Auto Select')])
+            this.createProxyGroup(t('outboundNames.Node Select'), 'select', [t('outboundNames.Auto Select'), 'DIRECT'])
         );
     }
 
     addOutboundGroups(outbounds, proxyList) {
         outbounds.forEach(outbound => {
-            if (outbound !== t('outboundNames.Node Select') && outbound !== 'REJECT' && outbound !== 'DIRECT') {
-                this.config['proxy-groups'].unshift(
-                    this.createProxyGroup(t(`outboundNames.${outbound}`), 'select', [t('outboundNames.Node Select')])
+            if (outbound !== t('outboundNames.Node Select') && getActions(outbound) != 'REJECT' && getActions(outbound) != 'DIRECT') {
+                this.config['proxy-groups'].push(
+                    this.createProxyGroup(t(`outboundNames.${outbound}`), 'select', [t('outboundNames.Node Select'), 'DIRECT', t('outboundNames.Auto Select')])
                 );
             }
         });
@@ -193,19 +193,37 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
         rules.forEach(rule => {
             if (rule.site_rules[0] !== '') {
                 rule.site_rules.forEach(site => {
-                    finalConfig.push(`RULE-SET,${SURGE_SITE_RULE_SET_BASE_URL}${site},${t('outboundNames.'+ rule.outbound)}`);
+                    if (getActions(rule.outbound) == 'REJECT') {
+                        finalConfig.push(`DOMAIN-SET,${SURGE_SITE_RULE_SET_BASE_URL}${site}.conf,REJECT`);
+                    } else if (getActions(rule.outbound) == 'DIRECT') {
+                        finalConfig.push(`DOMAIN-SET,${SURGE_SITE_RULE_SET_BASE_URL}${site}.conf,DIRECT`);
+                    } else {
+                        finalConfig.push(`DOMAIN-SET,${SURGE_SITE_RULE_SET_BASE_URL}${site}.conf,${t('outboundNames.'+ rule.outbound)}`);
+                    }
                 });
             }
 
             if (rule.non_ip_rules[0] !== '') {
                 rule.non_ip_rules.forEach(non_ip => {
-                    finalConfig.push(`RULE-SET,${SURGE_NON_IP_RULE_SET_BASE_URL}${non_ip}.conf,${t('outboundNames.'+ rule.outbound)}`);
+                    if (getActions(rule.outbound) == 'REJECT') {
+                        finalConfig.push(`RULE-SET,${SURGE_NON_IP_RULE_SET_BASE_URL}${non_ip}.conf,REJECT`);
+                    } else if (getActions(rule.outbound) == 'DIRECT') {
+                        finalConfig.push(`RULE-SET,${SURGE_NON_IP_RULE_SET_BASE_URL}${non_ip}.conf,DIRECT`);
+                    } else {
+                        finalConfig.push(`RULE-SET,${SURGE_NON_IP_RULE_SET_BASE_URL}${non_ip}.conf,${t('outboundNames.'+ rule.outbound)}`);
+                    }
                 });
             }
 
             if (rule.ip_rules[0] !== '') {
                 rule.ip_rules.forEach(ip => {
-                    finalConfig.push(`RULE-SET,${SURGE_IP_RULE_SET_BASE_URL}${ip}.conf,${t('outboundNames.'+ rule.outbound)}`);
+                    if (getActions(rule.outbound) == 'REJECT') {
+                        finalConfig.push(`RULE-SET,${SURGE_IP_RULE_SET_BASE_URL}${ip}.conf,REJECT`);
+                    } else if (getActions(rule.outbound) == 'DIRECT') {
+                        finalConfig.push(`RULE-SET,${SURGE_IP_RULE_SET_BASE_URL}${ip}.conf,DIRECT`);
+                    } else {
+                        finalConfig.push(`RULE-SET,${SURGE_IP_RULE_SET_BASE_URL}${ip}.conf,${t('outboundNames.'+ rule.outbound)}`);
+                    }
                 });
             }
 
