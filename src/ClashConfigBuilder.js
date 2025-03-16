@@ -241,12 +241,6 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
                     }
                 });
             }
-
-            if (rule.non_ip_rules && rule.non_ip_rules[0] !== '') {
-                rule.non_ip_rules.forEach(non_ip => {
-                    ruleResults.push(`RULE-SET,${non_ip},${t('outboundNames.'+ rule.outbound)}`);
-                });
-            }
             
             // 使用RULE-SET格式的IP规则
             if (rule.ip_rules && rule.ip_rules[0] !== '') {
