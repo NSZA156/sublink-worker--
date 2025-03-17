@@ -366,7 +366,7 @@ export function generateClashRuleSets(selectedRules = [], customRules = []) {
   });
 
   if (ip_rule_providers['china_ip_ip']) {
-	ip_rule_providers['china_ip'].format = 'ipcidr';
+	ip_rule_providers['china_ip_ip'].behavior = 'ipcidr';
   };
 
 // Add custom rules
