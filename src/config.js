@@ -19,8 +19,8 @@ export const UNIFIED_RULES = [
 	{
 		name: 'Evil Sogou',
 		outbound: 'REJECT',
-		site_rules: ['sogouinput'],
-		non_ip_rules: [],
+		site_rules: [],
+		non_ip_rules: ['sogouinput'],
 		ip_rules: []
 	},
 	{
