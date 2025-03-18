@@ -95,8 +95,8 @@ export class SingboxConfigBuilder extends BaseConfigBuilder {
             domain_suffix: rule.domain_suffix,
             domain_keyword: rule.domain_keyword,
             ip_cidr: rule.ip_cidr,
-            protocol: rule.protocol,
-            outbound: getActions(rule.outbound) == 'DIRECT' && getActions(rule.outbound) != 'REJECT' ? 'DIRECT' : t(`outboundNames.${rule.outbound}`),
+            protocol: rule.protocol, 
+            outbound : getActions(rule.outbound) == 'DIRECT' ? 'DIRECT' : getActions(rule.outbound) == 'REJECT' ? undefined : t(`outboundNames.${rule.outbound}`), 
             action: getActions(rule.outbound) == 'REJECT' ? 'reject' : undefined
         }));
 
