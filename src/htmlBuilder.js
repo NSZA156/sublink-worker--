@@ -395,14 +395,63 @@ const generateRuleSetSelection = () => `
       </select>
     </div>
     <div class="row" id="ruleCheckboxes">
-      ${UNIFIED_RULES.map(rule => `
-        <div class="col-md-4 mb-2">
-          <div class="form-check">
-            <input class="form-check-input rule-checkbox" type="checkbox" value="${rule.name}" id="${rule.name}" name="selectedRules">
-            <label class="form-check-label" for="${rule.name}">${t('outboundNames.' + rule.name)}</label>
-          </div>
+        <div class="form-section-title d-flex align-items-center">
+          ${t('ruleSelectionReject')}
+          <span class="tooltip-icon">
+            <i class="fas fa-question-circle"></i>
+            <span class="tooltip-content">
+              ${t('ruleSelectionTooltipReject')}
+            </span>
+          </span>
         </div>
-      `).join('')}
+        <div class="row mb-2" id="ruleCheckboxes">
+          ${UNIFIED_RULES.filter(rule => rule.outbound == 'REJECT').map(rule => `
+          <div class="col-md-4 mb-2">
+            <div class="form-check">
+              <input class="form-check-input rule-checkbox" type="checkbox" value="${rule.name}" id="${rule.name}" name="selectedRules">
+             <label class="form-check-label" for="${rule.name}">${t('outboundNames.' + rule.name)}</label>
+            </div>
+          </div>
+          `).join('')}  
+        </div>
+        <div class="form-section-title d-flex align-items-center">
+          ${t('ruleSelectionDirect')}
+          <span class="tooltip-icon">
+            <i class="fas fa-question-circle"></i>
+            <span class="tooltip-content">
+              ${t('ruleSelectionTooltipDirect')}
+            </span>
+          </span>
+        </div>
+        <div class="row mb-2" id="ruleCheckboxes">
+          ${UNIFIED_RULES.filter(rule => rule.outbound == 'DIRECT').map(rule => `
+          <div class="col-md-4 mb-2">
+            <div class="form-check">
+              <input class="form-check-input rule-checkbox" type="checkbox" value="${rule.name}" id="${rule.name}" name="selectedRules">
+             <label class="form-check-label" for="${rule.name}">${t('outboundNames.' + rule.name)}</label>
+            </div>
+          </div>
+          `).join('')}
+        </div>
+        <div class="form-section-title d-flex align-items-center">
+          ${t('ruleSelectionProxy')}
+          <span class="tooltip-icon">
+            <i class="fas fa-question-circle"></i>
+            <span class="tooltip-content">
+              ${t('ruleSelectionTooltipProxy')}
+            </span>
+          </span>
+        </div>
+        <div class="row mb-2" id="ruleCheckboxes">
+          ${UNIFIED_RULES.filter(rule => rule.outbound != 'DIRECT' && rule.outbound != 'REJECT').map(rule => `
+          <div class="col-md-4 mb-2">
+            <div class="form-check">
+              <input class="form-check-input rule-checkbox" type="checkbox" value="${rule.name}" id="${rule.name}" name="selectedRules">
+             <label class="form-check-label" for="${rule.name}">${t('outboundNames.' + rule.name)}</label>
+            </div>
+          </div>
+          `).join('')}
+        </div>
     </div>
     <div class="mt-2">
       <div id="customRules">
