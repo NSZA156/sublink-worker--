@@ -29,8 +29,17 @@ export class SingboxConfigBuilder extends BaseConfigBuilder {
         this.config.outbounds.push(proxy);
     }
 
+    addNodeSelectGroup(proxyList) {
+        proxyList.unshift('DIRECT', t('outboundNames.Auto Select'));
+        this.config.outbounds.push({
+            type: "selector",
+            tag: t('outboundNames.Node Select'),
+            outbounds: proxyList
+        });
+    }
+    
     addAutoSelectGroup(proxyList) {
-        this.config.outbounds.unshift({
+        this.config.outbounds.push({
             type: "urltest",
             tag: t('outboundNames.Auto Select'),
             outbounds: DeepCopy(proxyList),
@@ -38,16 +47,7 @@ export class SingboxConfigBuilder extends BaseConfigBuilder {
             interval: "10m"
         });
     }
-
-    addNodeSelectGroup(proxyList) {
-        proxyList.unshift('DIRECT', t('outboundNames.Auto Select'));
-        this.config.outbounds.unshift({
-            type: "selector",
-            tag: t('outboundNames.Node Select'),
-            outbounds: proxyList
-        });
-    }
-
+    
     addOutboundGroups(outbounds, proxyList) {
         outbounds.forEach(outbound => {
             if (outbound !== t('outboundNames.Node Select') && getActions(outbound) != 'DIRECT' && getActions(outbound) != 'REJECT') {
