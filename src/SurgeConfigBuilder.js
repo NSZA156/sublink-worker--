@@ -126,16 +126,16 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
         return `${name} = ${type}, ${allOptions.join(', ')}${extraConfig}`;
     }
 
-    addNodeSelectGroup(proxyList) {
-        this.config['proxy-groups'].push(
-            this.createProxyGroup(t('outboundNames.Node Select'), 'select', ['DIRECT', t('outboundNames.Auto Select')])
-        );
-    }
-
     addAutoSelectGroup(proxyList) {
         this.config['proxy-groups'] = this.config['proxy-groups'] || [];
         this.config['proxy-groups'].push(
             this.createProxyGroup(t('outboundNames.Auto Select'), 'url-test', ['url = http://www.v2ex.com/generate_204', 'interval = 600'])
+        );
+    }
+
+    addNodeSelectGroup(proxyList) {
+        this.config['proxy-groups'].push(
+            this.createProxyGroup(t('outboundNames.Node Select'), 'select', ['DIRECT', t('outboundNames.Auto Select')])
         );
     }
 

@@ -141,6 +141,15 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
         this.config.proxies.push(proxy);
     }
 
+    addNodeSelectGroup(proxyList) {
+        proxyList.unshift('DIRECT', t('outboundNames.Auto Select'));
+        this.config['proxy-groups'].push({
+            type: "select",
+            name: t('outboundNames.Node Select'),
+            proxies: proxyList
+        });
+    }
+
     addAutoSelectGroup(proxyList) {
         this.config['proxy-groups'] = this.config['proxy-groups'] || [];
         this.config['proxy-groups'].push({
@@ -149,15 +158,6 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
             proxies: DeepCopy(proxyList),
             url: 'http://www.v2ex.com/generate_204',
             interval: '600'
-        });
-    }
-
-    addNodeSelectGroup(proxyList) {
-        proxyList.unshift('DIRECT', t('outboundNames.Auto Select'));
-        this.config['proxy-groups'].unshift({
-            type: "select",
-            name: t('outboundNames.Node Select'),
-            proxies: proxyList
         });
     }
 
