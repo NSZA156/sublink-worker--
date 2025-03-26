@@ -200,6 +200,7 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
 
     formatConfig() {
         const rules = this.generateRules();
+        const ruleResults = [];
         
         // 获取.txt规则集配置
         const { site_rule_providers, non_ip_rule_providers, ip_rule_providers } = generateClashRuleSets(this.selectedRules, this.customRules);
@@ -211,59 +212,54 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
             ...ip_rule_providers
         };
 
-        // 使用RULE-SET规则格式替代原有的GEOSITE/GEOIP
-        this.config.rules = rules.flatMap(rule => {
-            const ruleResults = [];
-            
-            // 使用RULE-SET格式的站点规则
-            if (rule.site_rules && rule.site_rules[0] !== '') {
-                rule.site_rules.forEach(site => {
-                    if (getActions(rule.outbound) == 'REJECT') {
-                        ruleResults.push(`RULE-SET,${site}_domainset,REJECT`);
-                    } else if (getActions(rule.outbound) == 'DIRECT') {
-                        ruleResults.push(`RULE-SET,${site}_domainset,DIRECT`);
-                    } else {
-                        ruleResults.push(`RULE-SET,${site}_domainset,${t('outboundNames.'+ rule.outbound)}`);
-                    }
-                });
-            }
+        // Rule-Set & Domain-Set:  To reduce DNS leaks and unnecessary DNS queries,
+        // domain & non-IP rules must precede IP rules
 
-            if (rule.non_ip_rules && rule.non_ip_rules[0] !== '') {
-                rule.non_ip_rules.forEach(non_ip => {
-                    if (getActions(rule.outbound) ==  'REJECT') {
-                        ruleResults.push(`RULE-SET,${non_ip}_non_ip,REJECT`);
-                    } else if (getActions(rule.outbound) == 'DIRECT') {
-                        ruleResults.push(`RULE-SET,${non_ip}_non_ip,DIRECT`);
-                    } else {
-                        ruleResults.push(`RULE-SET,${non_ip}_non_ip,${t('outboundNames.'+ rule.outbound)}`);
-                    }
-                });
-            }
-            
-            // 使用RULE-SET格式的IP规则
-            if (rule.ip_rules && rule.ip_rules[0] !== '') {
-                rule.ip_rules.forEach(ip => {
-                    if (getActions(rule.outbound) == 'REJECT') {
-                        ruleResults.push(`RULE-SET,${ip}_ip,REJECT`);
-                    } else if (getActions(rule.outbound) == 'DIRECT') {
-                        ruleResults.push(`RULE-SET,${ip}_ip,DIRECT`);
-                    } else {
-                        ruleResults.push(`RULE-SET,${ip}_ip,${t('outboundNames.'+ rule.outbound)}`);
-                    }
-                });
-            }
-            
-            // 保持对其他类型规则的支持
-            const domainSuffixRules = rule.domain_suffix ? rule.domain_suffix.map(suffix => 
-                `DOMAIN-SUFFIX,${suffix},${t('outboundNames.'+ rule.outbound)}`) : [];
-            const domainKeywordRules = rule.domain_keyword ? rule.domain_keyword.map(keyword => 
-                `DOMAIN-KEYWORD,${keyword},${t('outboundNames.'+ rule.outbound)}`) : [];
-            const ipCidrRules = rule.ip_cidr ? rule.ip_cidr.map(cidr => 
-                `IP-CIDR,${cidr},${t('outboundNames.'+ rule.outbound)}`) : [];
-            
-            return [...ruleResults, ...domainSuffixRules, ...domainKeywordRules, ...ipCidrRules];
+        rules.filter(rule => !!rule.domain_suffix || !!rule.domain_keyword).map(rule => {
+            ruleResults.push(rule.domain_suffix ? rule.domain_suffix.map(suffix => 
+                `DOMAIN-SUFFIX,${suffix},${t('outboundNames.'+ rule.outbound)}`) : []
+            );
+            ruleResults.push(rule.domain_keyword ? rule.domain_keyword.map(keyword => 
+                `DOMAIN-KEYWORD,${keyword},${t('outboundNames.'+ rule.outbound)}`) : []
+            );
         });
 
+        // Predefined site_rules
+        rules.filter(rule => !!rule.site_rules[0]).map(rule => {
+            rule.site_rules.forEach(site => {
+                getActions(rule.outbound) == 'REJECT' ? ruleResults.push(`RULE-SET,${site}_domainset,REJECT`) :
+                getActions(rule.outbound) == 'DIRECT' ? ruleResults.push(`RULE-SET,${site}_domainset,DIRECT`) :
+                ruleResults.push(`RULE-SET,${site}_domainset,${t('outboundNames.'+ rule.outbound)}`);
+            });
+        });
+
+        // Predefined non_ip_rules
+        rules.filter(rule => !!rule.non_ip_rules[0]).map(rule => {
+            rule.non_ip_rules.forEach(non_ip => {
+                getActions(rule.outbound) == 'REJECT' ? ruleResults.push(`RULE-SET,${non_ip}_non_ip,REJECT`) :
+                getActions(rule.outbound) == 'DIRECT' ? ruleResults.push(`RULE-SET,${non_ip}_non_ip,DIRECT`) :
+                ruleResults.push(`RULE-SET,${non_ip}_non_ip,${t('outboundNames.'+ rule.outbound)}`);
+            });
+        });
+            
+        // Predefined ip_rules
+        rules.filter(rule => !!rule.ip_rules[0]).map(rule => {
+            rule.ip_rules.forEach(ip => {
+                getActions(rule.outbound) == 'REJECT' ? ruleResults.push(`RULE-SET,${ip}_ip,REJECT`) :
+                getActions(rule.outbound) == 'DIRECT' ? ruleResults.push(`RULE-SET,${ip}_ip,DIRECT`) :
+                ruleResults.push(`RULE-SET,${ip}_ip,${t('outboundNames.'+ rule.outbound)}`);
+            });
+        });
+            
+        // 保持对其他类型规则的支持(Didn't work for now)
+        rules.filter(rule => !!rule.ip_cidr).map(rule => {
+            ruleResults.push(rule.ip_cidr ? rule.ip_cidr.map(cidr => 
+                `IP-CIDR,${cidr},${t('outboundNames.'+ rule.outbound)}`
+            ) : []);
+        });
+
+        this.config.rules = [...ruleResults]
+        
         this.config.rules.push(`MATCH,${t('outboundNames.Fall Back')}`);
 
         return yaml.dump(this.config);

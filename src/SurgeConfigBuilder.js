@@ -193,60 +193,65 @@ export class SurgeConfigBuilder extends BaseConfigBuilder {
         }
 
         finalConfig.push('\n[Rule]');
-        rules.forEach(rule => {
-            if (rule.site_rules[0] !== '') {
-                rule.site_rules.forEach(site => {
-                    if (getActions(rule.outbound) == 'REJECT') {
-                        finalConfig.push(`DOMAIN-SET,${SURGE_SITE_RULE_SET_BASE_URL}${site}.conf,REJECT`);
-                    } else if (getActions(rule.outbound) == 'DIRECT') {
-                        finalConfig.push(`DOMAIN-SET,${SURGE_SITE_RULE_SET_BASE_URL}${site}.conf,DIRECT`);
-                    } else {
-                        finalConfig.push(`DOMAIN-SET,${SURGE_SITE_RULE_SET_BASE_URL}${site}.conf,${t('outboundNames.'+ rule.outbound)}`);
-                    }
-                });
-            }
 
-            if (rule.non_ip_rules[0] !== '') {
-                rule.non_ip_rules.forEach(non_ip => {
-                    if (getActions(rule.outbound) == 'REJECT') {
-                        finalConfig.push(`RULE-SET,${SURGE_NON_IP_RULE_SET_BASE_URL}${non_ip}.conf,REJECT`);
-                    } else if (getActions(rule.outbound) == 'DIRECT') {
-                        finalConfig.push(`RULE-SET,${SURGE_NON_IP_RULE_SET_BASE_URL}${non_ip}.conf,DIRECT`);
-                    } else {
-                        finalConfig.push(`RULE-SET,${SURGE_NON_IP_RULE_SET_BASE_URL}${non_ip}.conf,${t('outboundNames.'+ rule.outbound)}`);
-                    }
-                });
-            }
+        // Rule-Set & Domain-Set:  To reduce DNS leaks and unnecessary DNS queries,
+        // domain & non-IP rules must precede IP rules
 
-            if (rule.ip_rules[0] !== '') {
-                rule.ip_rules.forEach(ip => {
-                    if (getActions(rule.outbound) == 'REJECT') {
-                        finalConfig.push(`RULE-SET,${SURGE_IP_RULE_SET_BASE_URL}${ip}.conf,REJECT`);
-                    } else if (getActions(rule.outbound) == 'DIRECT') {
-                        finalConfig.push(`RULE-SET,${SURGE_IP_RULE_SET_BASE_URL}${ip}.conf,DIRECT`);
-                    } else {
-                        finalConfig.push(`RULE-SET,${SURGE_IP_RULE_SET_BASE_URL}${ip}.conf,${t('outboundNames.'+ rule.outbound)}`);
-                    }
-                });
-            }
+        rules.filter(rule => !!rule.domain_suffix).map(rule => {
+            rule.domain_suffix.forEach(suffix => {
+                finalConfig.push(`DOMAIN-SUFFIX,${suffix},${t('outboundNames.'+ rule.outbound)}`);
+            });
+        });
 
-            if (rule.domain_suffix) {
-                rule.domain_suffix.forEach(suffix => {
-                    finalConfig.push(`DOMAIN-SUFFIX,${suffix},${t('outboundNames.'+ rule.outbound)}`);
-                });
-            }
+        rules.filter(rule => !!rule.domain_keyword).map(rule => {
+            rule.domain_keyword.forEach(keyword => {
+                finalConfig.push(`DOMAIN-KEYWORD,${keyword},${t('outboundNames.'+ rule.outbound)}`);
+            });
+        });
 
-            if (rule.domain_keyword) {
-                rule.domain_keyword.forEach(keyword => {
-                    finalConfig.push(`DOMAIN-KEYWORD,${keyword},${t('outboundNames.'+ rule.outbound)}`);
-                });
-            }
+        // Predefined site_rules
+        rules.filter(rule => rule.site_rules[0] !== '').map(rule => {
+            rule.site_rules.forEach(site => {
+                if (getActions(rule.outbound) == 'REJECT') {
+                    finalConfig.push(`DOMAIN-SET,${SURGE_SITE_RULE_SET_BASE_URL}${site}.conf,REJECT`);
+                } else if (getActions(rule.outbound) == 'DIRECT') {
+                    finalConfig.push(`DOMAIN-SET,${SURGE_SITE_RULE_SET_BASE_URL}${site}.conf,DIRECT`);
+                } else {
+                    finalConfig.push(`DOMAIN-SET,${SURGE_SITE_RULE_SET_BASE_URL}${site}.conf,${t('outboundNames.'+ rule.outbound)}`);
+                }
+            });
+        });
 
-            if (rule.ip_cidr) {
-                rule.ip_cidr.forEach(cidr => {
-                    finalConfig.push(`IP-CIDR,${cidr},${t('outboundNames.'+ rule.outbound)}`);
-                });
-            }
+        // Predefined non_ip_rules
+        rules.filter(rule => rule.non_ip_rules[0] !== '').map(rule => {
+            rule.non_ip_rules.forEach(non_ip => {
+                if (getActions(rule.outbound) == 'REJECT') {
+                    finalConfig.push(`RULE-SET,${SURGE_NON_IP_RULE_SET_BASE_URL}${non_ip}.conf,REJECT`);
+                } else if (getActions(rule.outbound) == 'DIRECT') {
+                    finalConfig.push(`RULE-SET,${SURGE_NON_IP_RULE_SET_BASE_URL}${non_ip}.conf,DIRECT`);
+                } else {
+                    finalConfig.push(`RULE-SET,${SURGE_NON_IP_RULE_SET_BASE_URL}${non_ip}.conf,${t('outboundNames.'+ rule.outbound)}`);
+                }
+            });
+        });
+
+        // Predefined ip_rules
+        rules.filter(rule => rule.ip_rules[0] !== '').map(rule => {
+            rule.ip_rules.forEach(ip => {
+                if (getActions(rule.outbound) == 'REJECT') {
+                    finalConfig.push(`RULE-SET,${SURGE_IP_RULE_SET_BASE_URL}${ip}.conf,REJECT`);
+                } else if (getActions(rule.outbound) == 'DIRECT') {
+                    finalConfig.push(`RULE-SET,${SURGE_IP_RULE_SET_BASE_URL}${ip}.conf,DIRECT`);
+                } else {
+                    finalConfig.push(`RULE-SET,${SURGE_IP_RULE_SET_BASE_URL}${ip}.conf,${t('outboundNames.'+ rule.outbound)}`);
+                }
+            });
+        });
+
+        rules.filter(rule => !!rule.ip_cidr).map(rule => {
+            rule.ip_cidr.forEach(cidr => {
+                finalConfig.push(`IP-CIDR,${cidr},${t('outboundNames.'+ rule.outbound)}`);
+            });
         });
 
         finalConfig.push('FINAL,' + t('outboundNames.Fall Back'));
