@@ -216,12 +216,12 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
         // domain & non-IP rules must precede IP rules
 
         rules.filter(rule => !!rule.domain_suffix || !!rule.domain_keyword).map(rule => {
-            ruleResults.push(rule.domain_suffix ? rule.domain_suffix.map(suffix => 
-                `DOMAIN-SUFFIX,${suffix},${t('outboundNames.'+ rule.outbound)}`) : []
-            );
-            ruleResults.push(rule.domain_keyword ? rule.domain_keyword.map(keyword => 
-                `DOMAIN-KEYWORD,${keyword},${t('outboundNames.'+ rule.outbound)}`) : []
-            );
+            rule.domain_suffix.forEach(suffix => {
+                ruleResults.push(`DOMAIN-SUFFIX,${suffix},${t('outboundNames.'+ rule.outbound)}`);
+            });
+            rule.domain_keyword.forEach(keyword => {
+                ruleResults.push(`DOMAIN-KEYWORD,${keyword},${t('outboundNames.'+ rule.outbound)}`);
+            });
         });
 
         // Predefined site_rules
@@ -253,9 +253,9 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
             
         // 保持对其他类型规则的支持(Didn't work for now)
         rules.filter(rule => !!rule.ip_cidr).map(rule => {
-            ruleResults.push(rule.ip_cidr ? rule.ip_cidr.map(cidr => 
-                `IP-CIDR,${cidr},${t('outboundNames.'+ rule.outbound)}`
-            ) : []);
+            rule.ip_cidr.forEach(cidr => {
+                ruleResults.push(`IP-CIDR,${cidr},${t('outboundNames.'+ rule.outbound)}`);
+            });
         });
 
         this.config.rules = [...ruleResults]
