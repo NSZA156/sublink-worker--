@@ -91,56 +91,56 @@ export class SingboxConfigBuilder extends BaseConfigBuilder {
 
         rules.filter(rule => !!rule.domain_suffix || !!rule.domain_keyword).map(rule => {
             this.config.route.rules.push({
-            domain_suffix: rule.domain_suffix,
-            domain_keyword: rule.domain_keyword,
-            protocol: rule.protocol, 
-            outbound : getActions(rule.outbound) == 'DIRECT' ? 'DIRECT' : getActions(rule.outbound) == 'REJECT' ? undefined : t(`outboundNames.${rule.outbound}`), 
-            action: getActions(rule.outbound) == 'REJECT' ? 'reject' : undefined
+                domain_suffix: rule.domain_suffix,
+                domain_keyword: rule.domain_keyword,
+                protocol: rule.protocol, 
+                outbound : getActions(rule.outbound) == 'DIRECT' ? 'DIRECT' : getActions(rule.outbound) == 'REJECT' ? undefined : t(`outboundNames.${rule.outbound}`), 
+                action: getActions(rule.outbound) == 'REJECT' ? 'reject' : undefined
             });
         });
 
         // Predefined site rules
         rules.filter(rule => !!rule.site_rules[0]).map(rule => {
             this.config.route.rules.push({
-            rule_set: [
-                ...(rule.site_rules.filter(site => site.trim() !== '').map(site => `${site}_domainset`))
-            ],
-            protocol: rule.protocol, 
-            outbound : getActions(rule.outbound) == 'DIRECT' ? 'DIRECT' : getActions(rule.outbound) == 'REJECT' ? undefined : t(`outboundNames.${rule.outbound}`), 
-            action: getActions(rule.outbound) == 'REJECT' ? 'reject' : undefined
+                rule_set: [
+                    ...(rule.site_rules.filter(site => site.trim() !== '').map(site => `${site}_domainset`))
+                ],
+                protocol: rule.protocol, 
+                outbound : getActions(rule.outbound) == 'DIRECT' ? 'DIRECT' : getActions(rule.outbound) == 'REJECT' ? undefined : t(`outboundNames.${rule.outbound}`), 
+                action: getActions(rule.outbound) == 'REJECT' ? 'reject' : undefined
             });
         });
 
         // Predefined non ip rules
         rules.filter(rule => !!rule.non_ip_rules[0]).map(rule => {
             this.config.route.rules.push({
-            rule_set: [
-                ...(rule.non_ip_rules.filter(non_ip => non_ip.trim() !== '').map(non_ip => `${non_ip}_non_ip`))
-            ],
-            protocol: rule.protocol, 
-            outbound : getActions(rule.outbound) == 'DIRECT' ? 'DIRECT' : getActions(rule.outbound) == 'REJECT' ? undefined : t(`outboundNames.${rule.outbound}`), 
-            action: getActions(rule.outbound) == 'REJECT' ? 'reject' : undefined
+                rule_set: [
+                    ...(rule.non_ip_rules.filter(non_ip => non_ip.trim() !== '').map(non_ip => `${non_ip}_non_ip`))
+                ],
+                protocol: rule.protocol, 
+                outbound : getActions(rule.outbound) == 'DIRECT' ? 'DIRECT' : getActions(rule.outbound) == 'REJECT' ? undefined : t(`outboundNames.${rule.outbound}`), 
+                action: getActions(rule.outbound) == 'REJECT' ? 'reject' : undefined
             });
         });
 
         // Predefined ip rules
         rules.filter(rule => !!rule.ip_rules[0]).map(rule => {
             this.config.route.rules.push({
-            rule_set: [
-                ...(rule.ip_rules.filter(ip => ip.trim() !== '').map(ip => `${ip}_ip`))
-            ],
-            protocol: rule.protocol, 
-            outbound : getActions(rule.outbound) == 'DIRECT' ? 'DIRECT' : getActions(rule.outbound) == 'REJECT' ? undefined : t(`outboundNames.${rule.outbound}`), 
-            action: getActions(rule.outbound) == 'REJECT' ? 'reject' : undefined
+                rule_set: [
+                    ...(rule.ip_rules.filter(ip => ip.trim() !== '').map(ip => `${ip}_ip`))
+                ],
+                protocol: rule.protocol, 
+                outbound : getActions(rule.outbound) == 'DIRECT' ? 'DIRECT' : getActions(rule.outbound) == 'REJECT' ? undefined : t(`outboundNames.${rule.outbound}`), 
+                action: getActions(rule.outbound) == 'REJECT' ? 'reject' : undefined
             });
         });
 
         rules.filter(rule => !!rule.ip_cidr).map(rule => {
             this.config.route.rules.push({
-            ip_cidr: rule.ip_cidr,
-            protocol: rule.protocol, 
-            outbound : getActions(rule.outbound) == 'DIRECT' ? 'DIRECT' : getActions(rule.outbound) == 'REJECT' ? undefined : t(`outboundNames.${rule.outbound}`), 
-            action: getActions(rule.outbound) == 'REJECT' ? 'reject' : undefined
+                ip_cidr: rule.ip_cidr,
+                protocol: rule.protocol, 
+                outbound : getActions(rule.outbound) == 'DIRECT' ? 'DIRECT' : getActions(rule.outbound) == 'REJECT' ? undefined : t(`outboundNames.${rule.outbound}`), 
+                action: getActions(rule.outbound) == 'REJECT' ? 'reject' : undefined
             });
         });
 
