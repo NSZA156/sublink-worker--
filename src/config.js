@@ -405,18 +405,11 @@ export const SING_BOX_CONFIG = {
 	log: {
 		level: "info"
 	},
-	experimental: {
-		cache_file: {
-			enabled: true,
-			store_fakeip: true
-		}
-	},
 	dns: {
 		servers: [
 			{
 				tag: "dns_default",
 				address: "180.184.1.1",
-				strategy: "ipv4_only",
 				detour: "DIRECT"
 			},
 			{
@@ -431,11 +424,12 @@ export const SING_BOX_CONFIG = {
 			},
 			{
 				query_type: [
-					"A"
+				  "A"
 				],
 				server: "dns_fakeip"
 			}
 		],
+		strategy: "ipv4_only",
 		fakeip: {
 			enabled: true,
 			inet4_range: "198.18.0.1/15",
@@ -457,9 +451,15 @@ export const SING_BOX_CONFIG = {
 export const CLASH_CONFIG = {
     'mode': 'rule',
     'log-level': 'info',
-	'profile': {
-		'store-fake-ip': true
-	},
+	'dns': {
+        'enable': true,
+		'ipv6': false,
+        'enhanced-mode': 'fake-ip',
+		'fake-ip-range':  '198.18.0.1/15',
+        'nameserver': [
+            '180.184.1.1'
+        ]
+    },
 	'listener': [
 		{
 			'name': 'mixed-in',
@@ -480,15 +480,6 @@ export const CLASH_CONFIG = {
 			]
 		}
 	],
-    'dns': {
-        'enable': true,
-		'ipv6': false,
-        'enhanced-mode': 'fake-ip',
-		'fake-ip-range':  '198.18.0.1/15',
-        'nameserver': [
-            '180.184.1.1'
-        ]
-    },
     'proxies': [],
     'proxy-groups': [],
     'rule-providers': {
