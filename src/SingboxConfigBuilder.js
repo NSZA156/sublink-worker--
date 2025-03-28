@@ -123,6 +123,16 @@ export class SingboxConfigBuilder extends BaseConfigBuilder {
             });
         });
 
+        // Resolve the Domain if Any IP Rules were selected!!!
+        if (rules.some(rule => !!rule.ip_rules[0] || !!rule?.ip_cidr)) {
+            this.config.route.rules.push({
+                inbound: [
+                    'mixed-in', 'tun-in'
+                ],
+                action: 'resolve'
+            });
+        };
+
         // Predefined ip rules
         rules.filter(rule => !!rule.ip_rules[0]).map(rule => {
             this.config.route.rules.push({
