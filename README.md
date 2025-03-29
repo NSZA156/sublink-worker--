@@ -73,7 +73,7 @@
 - ShadowSocks
 - VMess
 - VLESS
-- Hysteria2 
+- Hysteria2 (默认使用curl作为UA，某些情况下可能不会下发Hysteria2协议，请修改UA为v2ray)
 - Trojan
 - TUIC
 
