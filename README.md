@@ -13,7 +13,7 @@
   <br>
 
   <p>
-    <a href="https://deploy.workers.cloudflare.com/?url=https://github.com/NSZA156/sublink-worker--">
+    <a href="https://dash.cloudflare.com/?to=/:account/workers-and-pages/create">
       <img src="https://deploy.workers.cloudflare.com/button" alt="Deploy to Cloudflare Workers"/>
     </a>
   </p>
@@ -54,8 +54,13 @@
 - Q: Sublink Worker--支持的客户端有什么？  
 - A: 本项目主要支持Sing-Box、Clash Meta、Surge(Surfboard)的官方客户端最新稳定版，任何在非最新稳定版上出现的异常均被视为预期行为。  
 
-### 一键部署
-点击上方的 "Deploy to Cloudflare" 按钮，即可快速部署您的专属订阅转换服务。
+### 快速部署
+- Fork本项目，点击上方Deploy to Cloudflare按钮
+- 在`导入储存库`栏选择你的仓库（你需要绑定Github账户）
+- 更改`部署命令`如下，选择`保存并部署`即可使用
+``` bash
+npm run deploy
+```
 
 ### 新手指南
 参考[官方文档](/docs)，或原项目下的Youtube指南。
