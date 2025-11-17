@@ -413,6 +413,7 @@ export const SING_BOX_CONFIG = {
 				detour: "DIRECT"
 			},
 			{
+				type: "fakeip",
 				tag: "dns_fakeip",
 				inet4_range: "198.18.0.0/15",
 				inet6_range: "fc00::/18"
