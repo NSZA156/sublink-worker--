@@ -15,9 +15,7 @@
     "wrangler": "^3.60.3"
   },
   "dependencies": {
-    "js-yaml": "^4.1.0"
-  },
-  "engines": {
-    "node": ">=18"
+    "js-yaml": "^4.1.0",
+    "sublink-plus": "file:"
   }
 }

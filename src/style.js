@@ -22,7 +22,6 @@ export const generateStyles = () => `
     --switch-checked-bg: #6a11cb;
     --transition-speed: 0.3s;
     --transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
-    --muted-color: #6c757d;
   }
 
   [data-theme="dark"] {
@@ -46,7 +45,6 @@ export const generateStyles = () => `
     --dropdown-hover-text: #e0e0e0;
     --switch-bg: #555555;
     --switch-checked-bg: #4a0e8f;
-    --muted-color: #c7cbd6;
   }
 
   .container { max-width: 800px; }
@@ -174,10 +172,6 @@ export const generateStyles = () => `
     font-weight: 500;
     color: var(--text-color);
   }
-
-  /* Make muted helper text readable, especially in dark mode */
-  .text-muted { color: var(--muted-color) !important; }
-  [data-theme="dark"] .text-muted { color: var(--muted-color) !important; opacity: 0.95; }
 
   .btn-outline-secondary {
     color: var(--text-color);

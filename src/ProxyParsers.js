@@ -1,4 +1,4 @@
-import { parseServerInfo, parseUrlParams, createTlsConfig, createTransportConfig, decodeBase64, base64ToBinary, DeepCopy, parseBool, parseMaybeNumber, parseArray } from './utils.js';
+import { parseServerInfo, parseUrlParams, createTlsConfig, createTransportConfig, decodeBase64, base64ToBinary, DeepCopy } from './utils.js';
 import yaml from 'js-yaml';
 
 // Shared: convert a Clash YAML proxy entry to internal proxy object
@@ -233,32 +233,6 @@ export function convertYamlProxyToObject(p) {
         disable_sni: typeof p['disable-sni'] !== 'undefined' ? !!p['disable-sni'] : undefined
       };
     }
-    case 'anytls': {
-      const tls = {
-        enabled: true,
-        server_name: p.sni,
-        insecure: !!p['skip-cert-verify'],
-        alpn: toArray(p.alpn)
-      };
-      if (p['client-fingerprint']) {
-        tls.utls = {
-          enabled: true,
-          fingerprint: p['client-fingerprint']
-        };
-      }
-      return {
-        tag: name,
-        type: 'anytls',
-        server: p.server,
-        server_port: parseInt(p.port),
-        password: p.password,
-        udp: !!p.udp,
-        'idle-session-check-interval': p['idle-session-check-interval'],
-        'idle-session-timeout': p['idle-session-timeout'],
-        'min-idle-session': p['min-idle-session'],
-        tls
-      };
-    }
     default:
       return null;
   }
@@ -349,15 +323,8 @@ export class ProxyParser {
 
 	class VmessParser {
 		parse(url) {
-            // Support fragment name after base64: vmess://BASE64#Name
-            let base64WithFragment = url.replace('vmess://', '')
-            let tagOverride;
-            const hashPos = base64WithFragment.indexOf('#');
-            if (hashPos >= 0) {
-                tagOverride = decodeURIComponent(base64WithFragment.slice(hashPos + 1));
-                base64WithFragment = base64WithFragment.slice(0, hashPos);
-            }
-            let vmessConfig = JSON.parse(decodeBase64(base64WithFragment))
+            let base64 = url.replace('vmess://', '')
+            let vmessConfig = JSON.parse(decodeBase64(base64))
             let tls = { "enabled": false }
             let transport;
             const networkType = vmessConfig.net || 'tcp';
@@ -428,7 +395,7 @@ export class ProxyParser {
                 }
             }
             return {
-                "tag": tagOverride || vmessConfig.ps,
+                "tag": vmessConfig.ps,
                 "type": "vmess",
                 "server": vmessConfig.add,
                 "server_port": parseInt(vmessConfig.port),
@@ -551,11 +518,27 @@ export class ProxyParser {
       }
 
       class TuicParser {
-
+        
         parse(url) {
           const { addressPart, params, name } = parseUrlParams(url);
           const [userinfo, serverInfo] = addressPart.split('@');
           const { host, port } = parseServerInfo(serverInfo);
+          const parseBool = (value, fallback) => {
+            if (value === undefined || value === null) return fallback;
+            if (typeof value === 'boolean') return value;
+            const lowered = String(value).toLowerCase();
+            if (lowered === 'true' || lowered === '1') return true;
+            if (lowered === 'false' || lowered === '0') return false;
+            return fallback;
+          };
+          const parseArray = (value) => {
+            if (!value) return undefined;
+            if (Array.isArray(value)) return value;
+            return String(value)
+              .split(',')
+              .map(entry => entry.trim())
+              .filter(entry => entry.length > 0);
+          };
           const tls = {
             enabled: true,
             server_name: params.sni,

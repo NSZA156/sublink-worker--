@@ -107,8 +107,6 @@ const translations = {
       'AI Platform': '🤖 AI平台',
       'GLOBAL': 'GLOBAL'
     },
-    groupByCountry: '按国家分组',
-    groupByCountryTip: '仅 Clash/Surge/SingBox 生效',
     UASettings: '自定义UserAgent',
     UAtip: '默认值curl/7.74.0'
   },
@@ -216,8 +214,6 @@ const translations = {
       'AI Platform': '🤖 AI Platform',
       'GLOBAL': 'GLOBAL'
     },
-    groupByCountry: 'Group by Country',
-    groupByCountryTip: 'Clash/Surge/SingBox only',
     UASettings: 'Custom UserAgent',
     UAtip: 'By default it will use curl/7.74.0'
   },

@@ -1,19 +1,17 @@
 import yaml from 'js-yaml';
 import { CLASH_CONFIG, generateRules, generateClashRuleSets, getOutbounds, PREDEFINED_RULE_SETS, getActions, UNIFIED_RULES } from './config.js';
 import { BaseConfigBuilder } from './BaseConfigBuilder.js';
-import { DeepCopy, parseCountryFromNodeName } from './utils.js';
+import { DeepCopy } from './utils.js';
 import { t } from './i18n/index.js';
 
 export class ClashConfigBuilder extends BaseConfigBuilder {
-    constructor(inputString, selectedRules, customRules, baseConfig, lang, userAgent, groupByCountry) {
+    constructor(inputString, selectedRules, customRules, baseConfig, lang, userAgent) {
         if (!baseConfig) {
             baseConfig = CLASH_CONFIG;
         }
-        super(inputString, baseConfig, lang, userAgent, groupByCountry);
+        super(inputString, baseConfig, lang, userAgent);
         this.selectedRules = selectedRules;
         this.customRules = customRules;
-        this.countryGroupNames = [];
-        this.manualGroupName = null;
     }
 
     getProxies() {
@@ -174,22 +172,6 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
                     ...(proxy.reduce_rtt !== undefined ? { 'reduce-rtt': proxy.reduce_rtt } : {}),
                     ...(proxy.fast_open !== undefined ? { 'fast-open': proxy.fast_open } : {}),
                 };
-            case 'anytls':
-                return {
-                    name: proxy.tag,
-                    type: 'anytls',
-                    server: proxy.server,
-                    port: proxy.server_port,
-                    password: proxy.password,
-                    ...(proxy.udp !== undefined ? { udp: proxy.udp } : {}),
-                    ...(proxy.tls?.utls?.fingerprint ? { 'client-fingerprint': proxy.tls.utls.fingerprint } : {}),
-                    ...(proxy.tls?.server_name ? { sni: proxy.tls.server_name } : {}),
-                    ...(proxy.tls?.insecure !== undefined ? { 'skip-cert-verify': !!proxy.tls.insecure } : {}),
-                    ...(proxy.tls?.alpn ? { alpn: proxy.tls.alpn } : {}),
-                    ...(proxy['idle-session-check-interval'] !== undefined ? { 'idle-session-check-interval': proxy['idle-session-check-interval'] } : {}),
-                    ...(proxy['idle-session-timeout'] !== undefined ? { 'idle-session-timeout': proxy['idle-session-timeout'] } : {}),
-                    ...(proxy['min-idle-session'] !== undefined ? { 'min-idle-session': proxy['min-idle-session'] } : {}),
-                };
             default:
                 return proxy; // Return as-is if no specific conversion is defined
         }
@@ -226,32 +208,8 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
         proxyList.unshift('DIRECT', t('outboundNames.Auto Select'));
         this.config['proxy-groups'].push({
             type: "select",
-            name: nodeName,
-            proxies: list
-        });
-    }
-
-    buildSelectGroupMembers(proxyList = []) {
-        const normalize = (s) => typeof s === 'string' ? s.trim() : s;
-        const directReject = ['DIRECT', 'REJECT'];
-        const base = this.groupByCountry
-            ? [
-                t('outboundNames.Node Select'),
-                t('outboundNames.Auto Select'),
-                ...(this.manualGroupName ? [this.manualGroupName] : []),
-                ...((this.countryGroupNames || []))
-              ]
-            : [
-                t('outboundNames.Node Select'),
-                ...proxyList
-              ];
-        const combined = [...directReject, ...base].filter(Boolean);
-        const seen = new Set();
-        return combined.filter(name => {
-            const key = normalize(name);
-            if (!key || seen.has(key)) return false;
-            seen.add(key);
-            return true;
+            name: t('outboundNames.Node Select'),
+            proxies: proxyList
         });
     }
 
@@ -281,105 +239,21 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
     addCustomRuleGroups(proxyList) {
         if (Array.isArray(this.customRules)) {
             this.customRules.forEach(rule => {
-                const normalize = (s) => typeof s === 'string' ? s.trim() : s;
-                const name = t(`outboundNames.${rule.name}`);
-                const exists = this.config['proxy-groups'].some(g => g && normalize(g.name) === normalize(name));
-                if (!exists) {
-                    const proxies = this.buildSelectGroupMembers(proxyList);
-                    this.config['proxy-groups'].push({
-                        type: "select",
-                        name,
-                        proxies
-                    });
-                }
+                this.config['proxy-groups'].push({
+                    type: "select",
+                    name: t(`outboundNames.${rule.name}`),
+                    proxies: [t('outboundNames.Node Select'), ...proxyList]
+                });
             });
         }
     }
 
     addFallBackGroup(proxyList) {
-        const normalize = (s) => typeof s === 'string' ? s.trim() : s;
-        const name = t('outboundNames.Fall Back');
-        const exists = this.config['proxy-groups'].some(g => g && normalize(g.name) === normalize(name));
-        if (exists) return;
-        const proxies = this.buildSelectGroupMembers(proxyList);
         this.config['proxy-groups'].push({
             type: "select",
-            name,
-            proxies
+            name: t('outboundNames.Fall Back'),
+            proxies: [t('outboundNames.Node Select'), ...proxyList]
         });
-    }
-
-    addCountryGroups() {
-        const proxies = this.getProxies();
-        const countryGroups = {};
-
-        proxies.forEach(proxy => {
-            const countryInfo = parseCountryFromNodeName(proxy.name);
-            if (countryInfo) {
-                const { name } = countryInfo;
-                if (!countryGroups[name]) {
-                    countryGroups[name] = { ...countryInfo, proxies: [] };
-                }
-                countryGroups[name].proxies.push(proxy.name);
-            }
-        });
-
-        const normalize = (s) => typeof s === 'string' ? s.trim() : s;
-        const existingNames = new Set((this.config['proxy-groups'] || []).map(g => normalize(g?.name)).filter(Boolean));
-        
-        const manualProxyNames = proxies.map(p => p?.name).filter(Boolean);
-        const manualGroupName = manualProxyNames.length > 0 ? t('outboundNames.Manual Switch') : null;
-        if (manualGroupName) {
-            const manualNorm = normalize(manualGroupName);
-            if (!existingNames.has(manualNorm)) {
-                this.config['proxy-groups'].push({
-                    name: manualGroupName,
-                    type: 'select',
-                    proxies: manualProxyNames
-                });
-                existingNames.add(manualNorm);
-            }
-        }
-
-        const countries = Object.keys(countryGroups).sort((a, b) => a.localeCompare(b));
-        const countryGroupNames = [];
-
-        countries.forEach(country => {
-            const { emoji, name, proxies } = countryGroups[country];
-            const groupName = `${emoji} ${name}`;
-            const norm = normalize(groupName);
-            if (!existingNames.has(norm)) {
-                this.config['proxy-groups'].push({
-                    name: groupName,
-                    type: 'url-test',
-                    proxies: proxies,
-                    url: 'https://www.gstatic.com/generate_204',
-                    interval: 300,
-                    lazy: false
-                });
-                existingNames.add(norm);
-            }
-            countryGroupNames.push(groupName);
-        });
-
-        const nodeSelectGroup = this.config['proxy-groups'].find(g => g && g.name === t('outboundNames.Node Select'));
-        if (nodeSelectGroup && Array.isArray(nodeSelectGroup.proxies)) {
-            const seen = new Set();
-            const rebuilt = [
-                'DIRECT',
-                'REJECT',
-                t('outboundNames.Auto Select'),
-                ...(manualGroupName ? [manualGroupName] : []),
-                ...countryGroupNames
-            ].filter(Boolean);
-            nodeSelectGroup.proxies = rebuilt.filter(name => {
-                if (seen.has(name)) return false;
-                seen.add(name);
-                return true;
-            });
-        }
-        this.countryGroupNames = countryGroupNames;
-        this.manualGroupName = manualGroupName;
     }
 
     // 生成规则
@@ -389,7 +263,7 @@ export class ClashConfigBuilder extends BaseConfigBuilder {
 
     formatConfig() {
         // If remote YAML provided proxy-groups, sanitize their proxy lists to
-        // remove entries that don't exist as proxies or groups.
+        // remove entries that don't exist as proxies or groups (e.g., unsupported types like anytls).
         const rules = this.generateRules();
         const ruleResults = [];
         
