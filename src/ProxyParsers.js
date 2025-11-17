@@ -378,7 +378,7 @@ export class ProxyParser {
                 transport = {
                     "type": "http",
                     "method": method,
-                    "path": Array.isArray(path) ? path : [path],
+                    "path": path,
                     "headers": headers
                 }
             } else if (networkType === 'grpc') {
