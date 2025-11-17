@@ -402,7 +402,6 @@ export class ProxyParser {
                 "uuid": vmessConfig.id,
                 "alter_id": parseInt(vmessConfig.aid),
                 "security": vmessConfig.scy || "auto",
-                "network": transport?.type || networkType || "tcp",
                 "tcp_fast_open": false,
                 "transport": transport,
                 "tls": tls.enabled ? tls : undefined
