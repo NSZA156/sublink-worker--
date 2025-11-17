@@ -1,4 +1,4 @@
-import { t } from './i18n';
+import { t } from './i18n/index.js';
 
 export const SINGBOX_SITE_RULE_SET_BASE_URL = 'https://ruleset.skk.moe/sing-box/domainset/';
 export const SINGBOX_NON_IP_RULE_SET_BASE_URL = 'https://ruleset.skk.moe/sing-box/non_ip/';
@@ -414,7 +414,8 @@ export const SING_BOX_CONFIG = {
 			},
 			{
 				tag: "dns_fakeip",
-				address: "fakeip"
+				inet4_range: "198.18.0.0/15",
+				inet6_range: "fc00::/18"
 			}
 		],
 		rules: [

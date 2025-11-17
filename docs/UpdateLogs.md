@@ -1,7 +1,30 @@
 # 更新日志
 
 <<<<<<< HEAD:docs/update-log.md
+<<<<<<< HEAD:docs/update-log.md
 =======
+=======
+## 2025-11-08
+
+- feat(config): Added support for proxy configuration grouped by country, updated related translations
+
+## 2025-09-28
+
+- 修复singbox 1.12.0中部分配置造成警告的问题
+- 其他各种各样的小问题，懒得翻commits了
+
+
+## 2025-05-02
+
+- 现在如果存在相同名称的代理，会自动进行重命名([#175](https://github.com/7Sageer/sublink-worker/pull/175))
+- 修复Singbox的DNS配置([#174](https://github.com/7Sageer/sublink-worker/pull/174))
+
+## 2025-04-30
+
+- 完全适配Sing-Box 1.11
+- 出于Github最近的限制，Balance规则集添加了`Github`
+
+>>>>>>> up:docs/UpdateLogs.md
 ## 2025-04-27
 
 - 提升Hysteria2协议兼容性
@@ -24,7 +47,10 @@
 - 支持自定义UA
 - 全面使用Clash Meta的Rule Provider
 
+<<<<<<< HEAD:docs/update-log.md
 >>>>>>> daf476a (feat: enhance Hysteria2 protocol compatibility and update documentation(#164)):docs/UpdateLogs.md
+=======
+>>>>>>> up:docs/UpdateLogs.md
 ## 2025-02-22
 
 - 全面支持i18n
